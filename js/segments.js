@@ -98,7 +98,6 @@ function build_letter(code, letter, is_vowel) {
 
         if (is_vowel) {
             const vowel_code = parseInt(vowels_rev[letter], 2);
-            console.log(letter, vowel_code);
 
             for (const segment of box.querySelectorAll(".vowel")) {
                 let index = parseInt(segment.classList[2][1]);
