@@ -30,8 +30,8 @@
     background-color: var(--tunic-brown);
 }
 
-.segment:hover {
-    background-color: red;
+.segment_box.selectable > .segment:hover {
+    background-color: var(--tunic-brown);
 }
 
 .v1 {

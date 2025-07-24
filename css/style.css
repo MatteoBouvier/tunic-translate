@@ -48,6 +48,11 @@ h1 {
     margin: 5px;
 }
 
+.card:hover {
+    transform: scale(1.1);
+    transition-duration: 200ms;
+}
+
 #vowels_container, #consonants_container {
     display: flex;
     flex-wrap: wrap;

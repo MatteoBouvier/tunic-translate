@@ -81,12 +81,23 @@ function build_letter(code, letter, is_vowel) {
 }
 
 
-let container = document.querySelector("#vowels_container");
-for (const [code, letter] of Object.entries(vowels).sort()) {
-    container.appendChild(build_letter(code, letter, true));
+function setup() {
+    let container = document.querySelector("#vowels_container");
+    for (const [code, letter] of Object.entries(vowels).sort()) {
+        container.appendChild(build_letter(code, letter, true));
+    }
+
+    container = document.querySelector("#consonants_container");
+    for (const [code, letter] of Object.entries(consonants).sort()) {
+        container.appendChild(build_letter(code, letter, false));
+    }
 }
 
-container = document.querySelector("#consonants_container");
-for (const [code, letter] of Object.entries(consonants).sort()) {
-    container.appendChild(build_letter(code, letter, false));
+/**
+ * @param {HTMLDivElement} segment */
+function segment_mouseup(segment) {
+    let new_status = segment.dataset.status == "off" ? "on" : "off";
+    segment.dataset.status = new_status;
 }
+
+setup()
