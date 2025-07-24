@@ -1,0 +1,167 @@
+.segment_box {
+    position: relative;
+    width: 80px;
+    height: 100px;
+}
+
+.segment_box.small {
+    width: 40px;
+    height: 50px;
+}
+
+.segment {
+    height: 8px;
+    width: 40px;
+    border-radius: 4px;
+    position: absolute;
+}
+
+.segment_box.small > .segment {
+    height: 4px;
+    width: 20px;
+    barder-radius: 2px;
+}
+
+.segment[data-status="off"] {
+    background-color: var(--tunic-sage);
+}
+
+.segment[data-status="on"] {
+    background-color: var(--tunic-brown);
+}
+
+.segment:hover {
+    background-color: red;
+}
+
+.v1 {
+    transform: rotate(30deg);
+    left: 40px;
+    top: 10px;
+}
+.segment_box.small > .v1 {
+    left: 20px;
+    top: 5px;
+}
+
+.v2 {
+    transform: rotate(-30deg);
+    top: 10px;
+}
+.segment_box.small > .v2 {
+    top: 5px
+}
+
+.v3 {
+    transform: rotate(90deg);
+    left: -15px;
+    top: 45px;
+}
+.segment_box.small > .v3 {
+    left: -7px;
+    top: 22px;
+}
+
+.v4 {
+    transform: rotate(30deg);
+    top: 80px;
+}
+.segment_box.small > .v4 {
+    top: 40px;
+}
+
+.v5 {
+    transform: rotate(-30deg);
+    top: 80px;
+    left: 40px;
+}
+.segment_box.small > .v5 {
+    top: 40px;
+    left: 20px;
+}
+
+.c1 {
+    width: 22px;
+    transform: rotate(90deg);
+    transform-origin: top left;
+    left: 44px;
+    top: 11px;
+}
+.segment_box.small > .c1 {
+    width: 11px;
+    left: 22px;
+}
+
+.c2 {
+    width: 26px;
+    transform: rotate(90deg);
+    transform-origin: top left;
+    left: 44px;
+    top: 36px;
+}
+.segment_box.small > .c2 {
+    width: 13px;
+    left: 22px;
+    top: 12px;
+}
+
+.c3 {
+    width: 22px;
+    transform: rotate(90deg);
+    transform-origin: top left;
+    left: 44px;
+    top: 65px;
+}
+.segment_box.small > .c3 {
+    width: 11px;
+    left: 22px;
+    top: 27px;
+}
+
+.c4 {
+    width: 24px;
+    transform: rotate(-20deg);
+    left: 45px;
+    top: 27px;
+}
+.segment_box.small > .c4 {
+    width: 12px;
+    left: 22px;
+    top: 8px;
+}
+
+.c5 {
+    width: 24px;
+    transform: rotate(20deg);
+    left: 11px;
+    top: 27px;
+}
+.segment_box.small > .c5 {
+    width: 12px;
+    left: 5px;
+    top: 8px;
+}
+
+.c6 {
+    width: 24px;
+    transform: rotate(-20deg);
+    left: 11px;
+    top: 63px;
+}
+.segment_box.small > .c6 {
+    width: 12px;
+    left: 5px;
+    top: 26px;
+}
+
+.c7 {
+    width: 24px;
+    transform: rotate(20deg);
+    left: 45px;
+    top: 63px;
+}
+.segment_box.small > .c7 {
+    width: 12px;
+    left: 22px;
+    top: 26px;
+}

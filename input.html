@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en_US">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Input Tunic</title>
+        <link href="css/style.css" rel="stylesheet">
+        <link href="css/colors.css" rel="stylesheet">
+        <link href="css/segments.css" rel="stylesheet">
+    </head>
+    <body>
+        <div class="box">
+            <div class="row">
+                <div class="item" style="max-width:50%;">
+                    <h1>Voyelles</h1>
+                    <div id="vowels_container"></div>
+                    <h1>Consonnes</h1>
+                    <div id="consonants_container"></div>
+                </div>
+
+                <div class="box">
+                    <div class="item" id="input_box">
+                        <div class="segment_box">
+                            <div class="segment v1" data-status="off"></div>
+                            <div class="segment v2" data-status="off"></div>
+                            <div class="segment v3" data-status="off"></div>
+                            <div class="segment v4" data-status="off"></div>
+                            <div class="segment v5" data-status="off"></div>
+
+                            <div class="segment c1" data-status="on"></div>
+                            <div class="segment c2" data-status="on"></div>
+                            <div class="segment c3" data-status="on"></div>
+                            <div class="segment c4" data-status="on"></div>
+                            <div class="segment c5" data-status="on"></div>
+                            <div class="segment c6" data-status="on"></div>
+                            <div class="segment c7" data-status="on"></div>
+                        </div>
+                    </div>
+
+                    <div class="item" style="flex-grow:3; padding: 2rem 2rem;">
+                        <textarea id="text_buffer"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="js/segments.js"></script>
+    </body>
+</html>
