@@ -51,6 +51,7 @@ h1 {
 .card:hover {
     transform: scale(1.1);
     transition-duration: 200ms;
+    cursor: pointer;
 }
 
 #vowels_container, #consonants_container {
@@ -60,6 +61,28 @@ h1 {
 
 #input_box {
     padding: 3rem 4rem;
+    position: relative;
+}
+
+#write_button {
+    position: absolute;
+    right: 4rem;
+    bottom: 3rem;
+    background-color: var(--tunic-magenta);
+    color: var(--tunic-orange);
+    width: 150px;
+    height: 2.5rem;
+    border-radius: 0.8rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border: 4px solid var(--tunic-brown);
+    transition-duration: 200ms;
+    cursor: pointer;
+}
+
+#write_button:hover {
+    transform: scale(1.05);
+    background-color: var(--tunic-red);
 }
 
 #text_buffer {
