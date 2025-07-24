@@ -45,6 +45,13 @@ const consonants = {
     "1111111": "x",
 };
 
+function rev(obj) {
+    return Object.fromEntries(Object.entries(obj).map(([k, v]) => [v, k]));
+}
+
+const vowels_rev = rev(vowels);
+const consonants_rev = rev(consonants);
+
 /**
  * @param {string} code binary representation of active segments
  * @param {string} letter
@@ -85,6 +92,27 @@ function build_letter(code, letter, is_vowel) {
 
     container.appendChild(box);
     container.appendChild(letter_container);
+
+    container.addEventListener("mouseup", function() {
+        let box = document.querySelector("#input_box").children[0];
+
+        if (is_vowel) {
+            const vowel_code = parseInt(vowels_rev[letter], 2);
+            console.log(letter, vowel_code);
+
+            for (const segment of box.querySelectorAll(".vowel")) {
+                let index = parseInt(segment.classList[2][1]);
+                segment.dataset.status = vowel_code & (2 ** index) ? "on" : "off";
+            }
+        } else {
+            const consonant_code = parseInt(consonants_rev[letter], 2);
+
+            for (const segment of box.querySelectorAll(".consonant")) {
+                let index = parseInt(segment.classList[2][1]);
+                segment.dataset.status = consonant_code & (2 ** index) ? "on" : "off";
+            }
+        }
+    });
 
     return container;
 }
