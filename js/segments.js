@@ -92,29 +92,105 @@ function build_letter(code, letter, is_vowel) {
     container.appendChild(box);
     container.appendChild(letter_container);
 
-    container.addEventListener("mouseup", function() {
-        let box = document.querySelector("#input_box").children[0];
-
+    container.addEventListener("mouseup", () => {
         if (is_vowel) {
-            const vowel_code = vowels_rev[letter];
-
-            for (const segment of box.querySelectorAll(".vowel")) {
-                let index = parseInt(segment.classList[2][1]);
-                segment.dataset.status = vowel_code & (1 << index) ? "on" : "off";
-            }
+            set_vowel(letter);
         } else {
-            const consonant_code = consonants_rev[letter];
-
-            for (const segment of box.querySelectorAll(".consonant")) {
-                let index = parseInt(segment.classList[2][1]);
-                segment.dataset.status = consonant_code & (1 << index) ? "on" : "off";
-            }
+            set_consonant(letter);
         }
     });
 
     return container;
 }
 
+
+/**
+ * @param {string} letter
+ */
+function set_vowel(letter) {
+    const box = document.querySelector("#input_box").children[0];
+    const vowel_code = vowels_rev[letter];
+
+    for (const segment of box.querySelectorAll(".vowel")) {
+        let index = parseInt(segment.classList[2][1]);
+        segment.dataset.status = vowel_code & (1 << index) ? "on" : "off";
+    }
+}
+
+
+/**
+ * @param {string} letter
+ */
+function set_consonant(letter) {
+    const box = document.querySelector("#input_box").children[0];
+    const consonant_code = consonants_rev[letter];
+
+    for (const segment of box.querySelectorAll(".consonant")) {
+        let index = parseInt(segment.classList[2][1]);
+        segment.dataset.status = consonant_code & (1 << index) ? "on" : "off";
+    }
+
+}
+
+
+let key_buffer = "";
+
+function handle_keybinding(event) {
+    if (event.code == "BracketLeft") {
+        if (event.shiftKey) {
+            key_buffer = "dieresis";
+        } else {
+            key_buffer = "circumflex";
+        }
+
+        return;
+    }
+
+    let key = event.key;
+
+    if (key == "æ") {
+        key = "á";
+    }
+
+    if (key_buffer == "circumflex") {
+        if (key === 'a') {
+            key = "â";
+        } else if (key == 'e') {
+            key = "ê";
+        } else if (key == 'i') {
+            key = "î";
+        } else if (key == "o") {
+            key = "ô";
+        } else if (key == "u") {
+            key = "û";
+        } else {
+            key_buffer = "";
+            return;
+        }
+    } else if (key_buffer == "dieresis") {
+        if (key === 'a') {
+            key = "ä";
+        } else if (key == 'i') {
+            key = "ï";
+        } else if (key == "y") {
+            key = "ÿ";
+        } else {
+            key_buffer = "";
+            return;
+        }
+    }
+    key_buffer = "";
+
+    if (event.altKey || event.shiftKey || event.ctrlKey || event.metaKey) { return; }
+
+    if (['a', 'á', 'à', 'â', 'ä', 'e', 'é', 'è', 'ê', 'i', 'î', 'ï', 'o', 'ô', 'u', 'û', 'y', 'ÿ'].indexOf(key) !== -1) {
+        set_vowel(key);
+    } else if (
+        ["c", "ç", "v", "d", "f", "h", "ħ", "s", "w", "l", "j", "ß", "q", "k", "z", "b", "g", "m", "µ", "r", "p", "t", "n", "x"].indexOf(key) !== -1
+    ) {
+        set_consonant(key);
+    }
+}
 
 function setup() {
     let container = document.querySelector("#vowels_container");
@@ -126,6 +202,8 @@ function setup() {
     for (const [code, letter] of Object.entries(consonants)) {
         container.appendChild(build_letter(code, letter, false));
     }
+
+    document.onkeydown = handle_keybinding;
 }
 
 /**
