@@ -1,48 +1,48 @@
 const vowels = {
-    "00001": "à",
-    "00010": "á",
-    "00011": "â",
-    "00110": "a",
-    "00111": "ä",
-    "01000": "è",
-    "01100": "e",
-    "01111": "ê",
-    "10000": "é",
-    "11000": "u",
-    "10100": "i",
-    "10110": "ï",
-    "10111": "î",
-    "11011": "û",
-    "11100": "y",
-    "11101": "ÿ",
-    "11110": "o",
-    "11111": "ô",
+    0b00001: "à",
+    0b00010: "á",
+    0b00011: "â",
+    0b00110: "a",
+    0b00111: "ä",
+    0b01000: "è",
+    0b01100: "e",
+    0b01111: "ê",
+    0b10000: "é",
+    0b11000: "u",
+    0b10100: "i",
+    0b10110: "ï",
+    0b10111: "î",
+    0b11011: "û",
+    0b11100: "y",
+    0b11101: "ÿ",
+    0b11110: "o",
+    0b11111: "ô",
 };
 const consonants = {
-    "1100000": "c",
-    "1110000": "ç",
-    "0011000": "v",
-    "0010110": "d",
-    "0001110": "f",
-    "1001110": "h",
-    "0101110": "ħ",
-    "0011110": "s",
-    "1111110": "w",
-    "1000011": "l",
-    "0100011": "j",
-    "1100011": "ß",
-    "1010011": "q",
-    "1001011": "k",
-    "1111011": "z",
-    "0000111": "b",
-    "1000111": "g",
-    "1100111": "m",
-    "0010111": "µ",
-    "1010111": "r",
-    "0001111": "p",
-    "0101111": "t",
-    "0011111": "n",
-    "1111111": "x",
+    0b1100000: "c",
+    0b1110000: "ç",
+    0b0011000: "v",
+    0b0010110: "d",
+    0b0001110: "f",
+    0b1001110: "h",
+    0b0101110: "ħ",
+    0b0011110: "s",
+    0b1111110: "w",
+    0b1000011: "l",
+    0b0100011: "j",
+    0b1100011: "ß",
+    0b1010011: "q",
+    0b1001011: "k",
+    0b1111011: "z",
+    0b0000111: "b",
+    0b1000111: "g",
+    0b1100111: "m",
+    0b0010111: "µ",
+    0b1010111: "r",
+    0b0001111: "p",
+    0b0101111: "t",
+    0b0011111: "n",
+    0b1111111: "x",
 };
 
 function rev(obj) {
@@ -53,7 +53,7 @@ const vowels_rev = rev(vowels);
 const consonants_rev = rev(consonants);
 
 /**
- * @param {string} code binary representation of active segments
+ * @param {binary} code binary representation of active segments
  * @param {string} letter
  * @param {bool} is_vowel
  * @returns {HTMLDivElement}
@@ -80,9 +80,8 @@ function build_letter(code, letter, is_vowel) {
         length = 7;
     }
 
-    let code_value = parseInt(code, 2);
     for (const i of Array(length).keys()) {
-        if (code_value & (2 ** i)) {
+        if (code & (1 << i)) {
             segment = document.createElement("div");
             segment.classList.add("segment", prefix + i);
             segment.dataset.status = "on";
@@ -97,18 +96,18 @@ function build_letter(code, letter, is_vowel) {
         let box = document.querySelector("#input_box").children[0];
 
         if (is_vowel) {
-            const vowel_code = parseInt(vowels_rev[letter], 2);
+            const vowel_code = vowels_rev[letter];
 
             for (const segment of box.querySelectorAll(".vowel")) {
                 let index = parseInt(segment.classList[2][1]);
-                segment.dataset.status = vowel_code & (2 ** index) ? "on" : "off";
+                segment.dataset.status = vowel_code & (1 << index) ? "on" : "off";
             }
         } else {
-            const consonant_code = parseInt(consonants_rev[letter], 2);
+            const consonant_code = consonants_rev[letter];
 
             for (const segment of box.querySelectorAll(".consonant")) {
                 let index = parseInt(segment.classList[2][1]);
-                segment.dataset.status = consonant_code & (2 ** index) ? "on" : "off";
+                segment.dataset.status = consonant_code & (1 << index) ? "on" : "off";
             }
         }
     });
@@ -119,19 +118,19 @@ function build_letter(code, letter, is_vowel) {
 
 function setup() {
     let container = document.querySelector("#vowels_container");
-    for (const [code, letter] of Object.entries(vowels).sort()) {
+    for (const [code, letter] of Object.entries(vowels)) {
         container.appendChild(build_letter(code, letter, true));
     }
 
     container = document.querySelector("#consonants_container");
-    for (const [code, letter] of Object.entries(consonants).sort()) {
+    for (const [code, letter] of Object.entries(consonants)) {
         container.appendChild(build_letter(code, letter, false));
     }
 }
 
 /**
  * @param {HTMLDivElement} segment */
-function segment_mouseup(segment) {
+function segment_click(segment) {
     let new_status = segment.dataset.status == "off" ? "on" : "off";
     segment.dataset.status = new_status;
 }
@@ -162,10 +161,10 @@ function write_character() {
     let consonant = "";
 
     if (vowel_code != 0) {
-        vowel = vowels[vowel_code.toString(2).padStart(5, "0")];
+        vowel = vowels[vowel_code];
     }
     if (consonant_code != 0) {
-        consonant = consonants[consonant_code.toString(2).padStart(7, "0")];
+        consonant = consonants[consonant_code];
     }
 
     if (vowel === undefined) {
