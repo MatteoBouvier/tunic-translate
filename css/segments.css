@@ -167,3 +167,17 @@
     left: 19px;
     top: 26px;
 }
+
+.blink-vowel > .vowel[data-status="on"] {
+    animation: blinker 1s ease-in-out infinite;
+}
+
+.blink-consonant > .consonant[data-status="on"] {
+    animation: blinker 1s ease-in-out infinite;
+}
+
+@keyframes blinker {
+    50% {
+    background-color: red;
+}
+}

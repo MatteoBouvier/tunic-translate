@@ -169,17 +169,21 @@ function write_character() {
     }
 
     if (vowel === undefined) {
-        console.log("invalid vowel");
-        // blink red
+        box.classList.add("blink-vowel");
+        setTimeout(() => {
+            box.classList.remove("blink-vowel")
+        }, 3000)
     }
 
     if (consonant === undefined) {
-        console.log("invalid consonant");
-        // blink red
+        box.classList.add("blink-consonant");
+        setTimeout(() => {
+            box.classList.remove("blink-consonant")
+        }, 3000)
     }
 
     if (vowel != undefined && consonant != undefined) {
-        console.log(consonant + vowel);
+        document.querySelector("#text_buffer").textContent += consonant + vowel;
     }
 }
 
