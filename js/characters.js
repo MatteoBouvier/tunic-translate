@@ -153,6 +153,20 @@ export function reset_character(n = -1) {
 }
 window.reset_character = reset_character;
 
+function is_vowel_set(character) {
+    if ([...character.querySelectorAll(".vowel")].some((segment) => segment.dataset.status == "on")) {
+        return true;
+    }
+    return false;
+}
+
+function is_consonant_set(character) {
+    if ([...character.querySelectorAll(".consonant")].some((segment) => segment.dataset.status == "on")) {
+        return true;
+    }
+    return false;
+}
+
 /**
  * Set current vowel from string
  * @param {string} letter
@@ -161,8 +175,12 @@ export function set_vowel(letter) {
     const characters = document.querySelector("#character_buffer").children;
     let last_character = characters[characters.length - 1];
 
-    if ([...last_character.querySelectorAll(".vowel")].some((segment) => segment.dataset.status == "on")) {
+    if (is_vowel_set(last_character)) {
         last_character = add_character();
+    }
+
+    if (!is_consonant_set(last_character)) {
+        last_character.querySelector(".circle").dataset.status = "on";
     }
 
     const vowel_code = vowels_rev[letter];
@@ -182,7 +200,7 @@ export function set_consonant(letter) {
     const characters = document.querySelector("#character_buffer").children;
     let last_character = characters[characters.length - 1];
 
-    if ([...last_character.querySelectorAll(".consonant")].some((segment) => segment.dataset.status == "on")) {
+    if (is_consonant_set(last_character)) {
         last_character = add_character();
     }
 
