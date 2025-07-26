@@ -1,4 +1,4 @@
-import { set_vowel, set_consonant, add_character, write_character, reset_character } from "./characters.js";
+import { set_vowel, set_consonant, add_character, add_character_if_set, write_character, reset_character } from "./characters.js";
 import { build_letter, vowels, consonants } from "./segments.js";
 
 let key_buffer = "";
@@ -30,6 +30,10 @@ function handle_keybinding(event) {
     else if (key == "Backspace") {
         key = "";
         reset_character(1);
+    }
+    else if (key == "Tab") {
+        key = "";
+        add_character_if_set();
     }
     else if (key_buffer == "circumflex") {
         if (key === 'a') {

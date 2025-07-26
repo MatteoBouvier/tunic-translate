@@ -32,6 +32,15 @@ export function add_character() {
     return character;
 }
 
+export function add_character_if_set() {
+    const characters = document.querySelector("#character_buffer").children;
+    let last_character = characters[characters.length - 1];
+
+    if ([...last_character.children].some((segment) => segment.dataset.status == "on")) {
+        add_character();
+    }
+}
+
 /**
  * Write a character (vowel + consonant) to the text buffer
  * @param {boolean} [reset=false] reset current character after writing ?
@@ -75,17 +84,17 @@ export function write_character(reset = false) {
         if (vowel === undefined) {
             is_valid = false;
 
-            box.classList.add("blink-vowel");
+            character.classList.add("blink-vowel");
             setTimeout(() => {
-                box.classList.remove("blink-vowel")
+                character.classList.remove("blink-vowel")
             }, 3000)
         }
 
         if (consonant === undefined) {
             is_valid = false;
-            box.classList.add("blink-consonant");
+            character.classList.add("blink-consonant");
             setTimeout(() => {
-                box.classList.remove("blink-consonant")
+                character.classList.remove("blink-consonant")
             }, 3000)
         }
 
@@ -100,12 +109,14 @@ export function write_character(reset = false) {
             text_buffer = ` ${text_buffer}`;
         }
 
+        console.log('add', text_buffer);
         textarea_buffer.textContent += text_buffer;
+
+        if (reset) {
+            reset_character();
+        }
     }
 
-    if (reset) {
-        reset_character();
-    }
 }
 window.write_character = write_character;
 
@@ -124,6 +135,10 @@ export function reset_character(n = -1) {
     while (n > 0) {
         characters.removeChild(characters.lastChild);
         n--;
+    }
+
+    if (characters.children.length === 0) {
+        add_character();
     }
 }
 window.reset_character = reset_character;
