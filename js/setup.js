@@ -4,6 +4,11 @@ import { build_letter, vowels, consonants } from "./segments.js";
 let key_buffer = "";
 
 function handle_keybinding(event) {
+    // disable default Tab action
+    if (event.keyCode === 9) {
+        event.preventDefault();
+    }
+
     if (event.code == "BracketLeft") {
         if (event.shiftKey) {
             key_buffer = "dieresis";
