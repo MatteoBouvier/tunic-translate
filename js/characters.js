@@ -109,7 +109,6 @@ export function write_character(reset = false) {
             text_buffer = ` ${text_buffer}`;
         }
 
-        console.log('add', text_buffer);
         textarea_buffer.textContent += text_buffer;
 
         if (reset) {
