@@ -1,4 +1,4 @@
-import { set_vowel, set_consonant } from "./characters.js";
+import { set_vowel, set_consonant, write_character, reset_character } from "./characters.js";
 import { build_letter, vowels, consonants } from "./segments.js";
 
 let key_buffer = "";
@@ -19,8 +19,12 @@ function handle_keybinding(event) {
     if (key == "æ") {
         key = "á";
     }
-
-    if (key_buffer == "circumflex") {
+    else if (key == " ") {
+        key = "";
+        write_character();
+        reset_character();
+    }
+    else if (key_buffer == "circumflex") {
         if (key === 'a') {
             key = "â";
         } else if (key == 'e') {
@@ -32,10 +36,10 @@ function handle_keybinding(event) {
         } else if (key == "u") {
             key = "û";
         } else {
-            key_buffer = "";
-            return;
+            key = "";
         }
-    } else if (key_buffer == "dieresis") {
+    }
+    else if (key_buffer == "dieresis") {
         if (key === 'a') {
             key = "ä";
         } else if (key == 'i') {
@@ -43,13 +47,12 @@ function handle_keybinding(event) {
         } else if (key == "y") {
             key = "ÿ";
         } else {
-            key_buffer = "";
-            return;
+            key = "";
         }
     }
     key_buffer = "";
 
-    if (event.altKey || event.shiftKey || event.ctrlKey || event.metaKey) { return; }
+    if (key === "" || event.altKey || event.shiftKey || event.ctrlKey || event.metaKey) { return; }
 
     if (['a', 'á', 'à', 'â', 'ä', 'e', 'é', 'è', 'ê', 'i', 'î', 'ï', 'o', 'ô', 'u', 'û', 'y', 'ÿ'].indexOf(key) !== -1) {
         set_vowel(key);

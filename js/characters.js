@@ -3,7 +3,7 @@ import { vowels, consonants, vowels_rev, consonants_rev } from "./segments.js";
 /**
  * Write a character (vowel + consonant) to the text buffer
  */
-function write_character() {
+export function write_character() {
     let box = document.querySelector("#input_box").children[0];
 
     let vowel_code = 0;
@@ -54,6 +54,15 @@ function write_character() {
     }
 }
 window.write_character = write_character;
+
+
+export function reset_character() {
+    let box = document.querySelector("#input_box").children[0];
+
+    for (const segment of box.querySelectorAll(".segment")) {
+        segment.dataset.status = "off";
+    }
+}
 
 /**
  * Set current vowel from string
