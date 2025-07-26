@@ -64,10 +64,11 @@ h1 {
     position: relative;
 }
 
-#write_button {
-    position: absolute;
-    right: 4rem;
-    bottom: 3rem;
+#character_buffer {
+    display: flex;
+}
+
+button {
     background-color: var(--tunic-magenta);
     color: var(--tunic-orange);
     width: 150px;
@@ -80,9 +81,20 @@ h1 {
     cursor: pointer;
 }
 
-#write_button:hover {
+#button:hover {
     transform: scale(1.05);
     background-color: var(--tunic-red);
+}
+
+#write_button {
+    position: absolute;
+    bottom: 3rem;
+}
+
+#reset_button {
+    position: absolute;
+    right: 4rem;
+    bottom: 3rem;
 }
 
 #text_buffer {

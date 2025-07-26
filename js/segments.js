@@ -108,7 +108,7 @@ export function build_letter(code, letter, is_vowel) {
 
 /**
  * @param {HTMLDivElement} segment */
-function segment_click(segment) {
+export function segment_click(segment) {
     let new_status = segment.dataset.status == "off" ? "on" : "off";
     segment.dataset.status = new_status;
 }

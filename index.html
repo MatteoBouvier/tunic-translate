@@ -25,22 +25,10 @@
 
                 <div class="box">
                     <div class="item" id="input_box">
-                        <div class="segment_box selectable">
-                            <div class="segment vowel v0" data-status="off" onmousedown="segment_click(this)"></div>
-                            <div class="segment vowel v1" data-status="off" onmousedown="segment_click(this)"></div>
-                            <div class="segment vowel v2" data-status="off" onmousedown="segment_click(this)"></div>
-                            <div class="segment vowel v3" data-status="off" onmousedown="segment_click(this)"></div>
-                            <div class="segment vowel v4" data-status="off" onmousedown="segment_click(this)"></div>
+                        <div id="character_buffer"></div>
 
-                            <div class="segment consonant c0" data-status="off" onmousedown="segment_click(this)"></div>
-                            <div class="segment consonant c1" data-status="off" onmousedown="segment_click(this)"></div>
-                            <div class="segment consonant c2" data-status="off" onmousedown="segment_click(this)"></div>
-                            <div class="segment consonant c3" data-status="off" onmousedown="segment_click(this)"></div>
-                            <div class="segment consonant c4" data-status="off" onmousedown="segment_click(this)"></div>
-                            <div class="segment consonant c5" data-status="off" onmousedown="segment_click(this)"></div>
-                            <div class="segment consonant c6" data-status="off" onmousedown="segment_click(this)"></div>
-                        </div>
-                        <button type="button" id="write_button" onclick="write_character()">Write</button>
+                        <button type="button" id="write_button" onclick="write_character(true)">Write</button>
+                        <button type="button" id="reset_button" onclick="reset_character()">Reset</button>
                     </div>
 
                     <div class="item" style="flex-grow:3; padding: 2rem 2rem;">

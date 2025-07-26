@@ -1,4 +1,4 @@
-import { set_vowel, set_consonant, write_character, reset_character } from "./characters.js";
+import { set_vowel, set_consonant, add_character, write_character, reset_character } from "./characters.js";
 import { build_letter, vowels, consonants } from "./segments.js";
 
 let key_buffer = "";
@@ -21,8 +21,15 @@ function handle_keybinding(event) {
     }
     else if (key == " ") {
         key = "";
-        write_character();
+        write_character(true);
+    }
+    else if (key == "Delete") {
+        key = "";
         reset_character();
+    }
+    else if (key == "Backspace") {
+        key = "";
+        reset_character(1);
     }
     else if (key_buffer == "circumflex") {
         if (key === 'a') {
@@ -73,6 +80,8 @@ function handle_keybinding(event) {
     for (const [code, letter] of Object.entries(consonants)) {
         container.appendChild(build_letter(code, letter, false));
     }
+
+    add_character();
 
     document.onkeydown = handle_keybinding;
 })()
