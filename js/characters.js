@@ -28,6 +28,13 @@ export function add_character() {
         character.appendChild(segment);
     }
 
+    let circle = document.createElement("div");
+    circle.classList.add("circle");
+    circle.dataset.status = "off";
+    circle.onmousedown = segment_click;
+
+    character.appendChild(circle);
+
     character_buffer.appendChild(character);
     return character;
 }
@@ -99,7 +106,11 @@ export function write_character(reset = false) {
         }
 
         if (vowel != undefined && consonant != undefined) {
-            text_buffer += consonant + vowel;
+            if (character.querySelector(".circle").dataset.status === "on") {
+                text_buffer += vowel + consonant;
+            } else {
+                text_buffer += consonant + vowel;
+            }
         }
     }
 

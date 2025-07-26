@@ -23,12 +23,31 @@
     barder-radius: 2px;
 }
 
+.circle {
+    width: 10px;
+    height: 10px;
+    border: 7px solid var(--tunic-brown);
+    border-radius: 20px;
+    position: absolute;
+    left: 28px;
+    top: 100px;
+    cursor: pointer;
+}
+
 .segment[data-status="off"] {
     background-color: var(--tunic-sage);
 }
 
 .segment[data-status="on"] {
     background-color: var(--tunic-brown);
+}
+
+.circle[data-status="off"] {
+    border-color: var(--tunic-sage);
+}
+
+.circle[data-status="on"] {
+    border-color: var(--tunic-brown);
 }
 
 .segment_box.selectable > .segment:hover {
