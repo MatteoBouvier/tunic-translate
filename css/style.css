@@ -81,7 +81,7 @@ button {
     cursor: pointer;
 }
 
-#button:hover {
+button:hover {
     transform: scale(1.05);
     background-color: var(--tunic-red);
 }
