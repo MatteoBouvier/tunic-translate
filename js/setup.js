@@ -1,5 +1,7 @@
+import { vowels_list, vowels } from "./vowels.js";
+import { consonants_list, consonants } from "./consonants.js";
 import { set_vowel, set_consonant, add_character, add_character_if_set, write_character, reset_character } from "./characters.js";
-import { build_letter, vowels, consonants } from "./segments.js";
+import { build_letter } from "./segments.js";
 
 let key_buffer = "";
 
@@ -70,11 +72,9 @@ function handle_keybinding(event) {
 
     if (key === "" || event.altKey || event.shiftKey || event.ctrlKey || event.metaKey) { return; }
 
-    if (['a', 'á', 'à', 'â', 'ä', 'e', 'é', 'è', 'ê', 'i', 'î', 'ï', 'o', 'ô', 'u', 'û', 'y', 'ÿ'].indexOf(key) !== -1) {
+    if (vowels_list.indexOf(key) !== -1) {
         set_vowel(key);
-    } else if (
-        ["c", "ç", "v", "d", "f", "h", "ħ", "s", "w", "l", "j", "ß", "q", "k", "z", "b", "g", "m", "µ", "r", "p", "t", "n", "x"].indexOf(key) !== -1
-    ) {
+    } else if (consonants_list.indexOf(key) !== -1) {
         set_consonant(key);
     }
 }

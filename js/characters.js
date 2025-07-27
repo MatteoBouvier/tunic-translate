@@ -1,4 +1,6 @@
-import { vowels, consonants, vowels_rev, consonants_rev, segment_click } from "./segments.js";
+import { vowels_rev } from "./vowels.js";
+import { consonants_rev } from "./consonants.js";
+import { segment_click, match_letter } from "./segments.js";
 
 /** 
  * Add a character input box to the character buffer
@@ -52,6 +54,13 @@ export function add_character() {
 
     character.appendChild(bar);
 
+    // human readable
+    let description = document.createElement("div");
+    description.classList.add("char-description");
+
+    character.appendChild(description);
+
+    // finally append character
     character_buffer.appendChild(character);
 
     if (character_buffer.children.length > 1) {
@@ -85,34 +94,8 @@ export function write_character(reset = false) {
     let is_valid = true;
 
     for (let character of characters) {
-        let vowel_code = 0;
-        let consonant_code = 0;
-
-        for (const segment of character.querySelectorAll(".vowel")) {
-            if (segment.dataset.status == "on") {
-                let index = parseInt(segment.classList[2][1]);
-                vowel_code += 2 ** index;
-            }
-        }
-
-        for (const segment of character.querySelectorAll(".consonant")) {
-            if (segment.dataset.status == "on") {
-                let index = parseInt(segment.classList[2][1]);
-                consonant_code += 2 ** index;
-            }
-        }
-
-        if (vowel_code + consonant_code == 0) { break; }
-
-        let vowel = "";
-        let consonant = "";
-
-        if (vowel_code != 0) {
-            vowel = vowels[vowel_code];
-        }
-        if (consonant_code != 0) {
-            consonant = consonants[consonant_code];
-        }
+        let [vowel, consonant, _] = match_letter(character);
+        if (vowel === "" && consonant_code === "") { break; }
 
         if (vowel === undefined) {
             is_valid = false;
@@ -231,6 +214,8 @@ export function set_vowel(letter) {
             last_character.querySelector(".v2-bottom").dataset.status = new_status;
         }
     }
+
+    last_character.querySelector(".char-description").innerHTML += letter;
 }
 
 
@@ -256,4 +241,6 @@ export function set_consonant(letter) {
         const index = parseInt(segment.classList[2][1]);
         segment.dataset.status = consonant_code & (1 << index) ? "on" : "off";
     }
+
+    last_character.querySelector(".char-description").innerHTML += letter;
 }
