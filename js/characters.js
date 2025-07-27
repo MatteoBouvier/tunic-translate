@@ -179,10 +179,6 @@ export function set_vowel(letter) {
         last_character = add_character();
     }
 
-    if (!is_consonant_set(last_character)) {
-        last_character.querySelector(".circle").dataset.status = "on";
-    }
-
     const vowel_code = vowels_rev[letter];
 
     for (const segment of last_character.querySelectorAll(".vowel")) {
@@ -202,6 +198,10 @@ export function set_consonant(letter) {
 
     if (is_consonant_set(last_character)) {
         last_character = add_character();
+    }
+
+    if (is_vowel_set(last_character)) {
+        last_character.querySelector(".circle").dataset.status = "on";
     }
 
     const consonant_code = consonants_rev[letter];
