@@ -68,6 +68,10 @@ h1 {
     display: flex;
 }
 
+.noshow {
+    display: none;
+}
+
 button {
     background-color: var(--tunic-magenta);
     color: var(--tunic-orange);

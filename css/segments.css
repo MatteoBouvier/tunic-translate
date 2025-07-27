@@ -34,6 +34,15 @@
     cursor: pointer;
 }
 
+.Hbar {
+    position: absolute;
+    height: 3px;
+    background-color: var(--tunic-brown);
+    left: 0px;
+    top: 47px;
+    z-index: 100;
+}
+
 .segment[data-status="off"] {
     background-color: var(--tunic-sage);
 }
@@ -74,13 +83,30 @@
 
 .v2 {
     transform: rotate(90deg);
-    left: -15px;
-    top: 45px;
+    transform-origin: top left;
+    left: 8px;
+    top: 29px;
+}
+.short_hbar .v2 {
+    width: 21px;
+    top: 29px;
 }
 .segment_box.small > .v2 {
-    left: -10px;
-    top: 22px;
-    width: 26px;
+    width: 27px;
+    left: 4px;
+    top: 11px;
+}
+
+.v2-bottom {
+    display: none;
+    width: 9px;
+    transform: rotate(90deg);
+    transform-origin: top left;
+    left: 8px;
+    top: 60px;
+}
+.short_hbar .v2-bottom {
+    display: initial;
 }
 
 .v3 {
@@ -120,6 +146,9 @@
     transform-origin: top left;
     left: 44px;
     top: 36px;
+}
+.short_hbar .c1 {
+    width: 14px;
 }
 .segment_box.small > .c1 {
     width: 15px;

@@ -111,4 +111,12 @@ export function build_letter(code, letter, is_vowel) {
 export function segment_click() {
     let new_status = this.dataset.status == "off" ? "on" : "off";
     this.dataset.status = new_status;
+
+    if (this.classList.contains("v2")) {
+        this.parentNode.querySelector(".v2-bottom").dataset.status = new_status;
+    }
+
+    if (this.classList.contains("v2-bottom")) {
+        this.parentNode.querySelector(".v2").dataset.status = new_status;
+    }
 }

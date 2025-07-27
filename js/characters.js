@@ -10,6 +10,7 @@ export function add_character() {
     let character = document.createElement("div");
     character.classList.add("segment_box", "selectable");
 
+    // vowel segments
     for (const i of Array(5).keys()) {
         let segment = document.createElement("div");
         segment.classList.add("segment", "vowel", `v${i}`);
@@ -19,15 +20,25 @@ export function add_character() {
         character.appendChild(segment);
     }
 
+    let segment = document.createElement("div");
+    segment.classList.add("segment", `v2-bottom`);
+    segment.dataset.status = "off";
+    segment.onmousedown = segment_click;
+
+    character.appendChild(segment);
+
+    // consonant segments
     for (const i of Array(7).keys()) {
         let segment = document.createElement("div");
         segment.classList.add("segment", "consonant", `c${i}`);
+
         segment.dataset.status = "off";
         segment.onmousedown = segment_click;
 
         character.appendChild(segment);
     }
 
+    // bottom circle
     let circle = document.createElement("div");
     circle.classList.add("circle");
     circle.dataset.status = "off";
@@ -35,7 +46,22 @@ export function add_character() {
 
     character.appendChild(circle);
 
+    // horizontal bar
+    let bar = document.createElement("div");
+    bar.classList.add("Hbar", "noshow");
+
+    character.appendChild(bar);
+
     character_buffer.appendChild(character);
+
+    if (character_buffer.children.length > 1) {
+        let bar = character_buffer.firstChild.querySelector(".Hbar");
+        bar.classList.remove("noshow");
+        bar.style.width = `${character_buffer.children.length * 80}px`;
+
+        character_buffer.classList.add("short_hbar");
+    }
+
     return character;
 }
 
@@ -136,19 +162,34 @@ window.write_character = write_character;
  * @param {number} [n=-1] number of characters to reset, all by default
  */
 export function reset_character(n = -1) {
+    let characters = document.querySelector("#character_buffer");
+
     if (n === -1) {
-        document.querySelector("#character_buffer").textContent = '';
+        characters.textContent = '';
+        characters.classList.remove("short_hbar");
         add_character();
+        return;
     }
 
-    let characters = document.querySelector("#character_buffer");
     while (n > 0) {
         characters.removeChild(characters.lastChild);
         n--;
     }
 
     if (characters.children.length === 0) {
+        characters.classList.remove("short_hbar");
+
         add_character();
+    }
+    else if (characters.children.length === 1) {
+        characters.classList.remove("short_hbar");
+
+        let bar = characters.firstChild.querySelector(".Hbar");
+        bar.classList.add("noshow");
+    }
+    else {
+        let bar = characters.firstChild.querySelector(".Hbar");
+        bar.style.width = `${character_buffer.children.length * 80}px`;
     }
 }
 window.reset_character = reset_character;
@@ -183,7 +224,12 @@ export function set_vowel(letter) {
 
     for (const segment of last_character.querySelectorAll(".vowel")) {
         const index = parseInt(segment.classList[2][1]);
-        segment.dataset.status = vowel_code & (1 << index) ? "on" : "off";
+        const new_status = vowel_code & (1 << index) ? "on" : "off";
+        segment.dataset.status = new_status;
+
+        if (index === 2) {
+            last_character.querySelector(".v2-bottom").dataset.status = new_status;
+        }
     }
 }
 
@@ -210,5 +256,4 @@ export function set_consonant(letter) {
         const index = parseInt(segment.classList[2][1]);
         segment.dataset.status = consonant_code & (1 << index) ? "on" : "off";
     }
-
 }
