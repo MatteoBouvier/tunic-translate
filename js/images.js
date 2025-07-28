@@ -41,7 +41,7 @@ function display_previous_page() {
     const current_page_nb = parseInt(image.src.split("/").at(-1).split(".")[0]);
     const previous_page_nb = Math.max(MIN_PAGE_NB, current_page_nb - 1);
 
-    image.src = `images/${previous_page_nb}.jpg`;
+    display_page(previous_page_nb);
 }
 window.display_previous_page = display_previous_page;
 
@@ -50,6 +50,6 @@ function display_next_page() {
     const current_page_nb = parseInt(image.src.split("/").at(-1).split(".")[0]);
     const next_page_nb = Math.min(MAX_PAGE_NB, current_page_nb + 1);
 
-    image.src = `images/${next_page_nb}.jpg`;
+    display_page(next_page_nb);
 }
 window.display_next_page = display_next_page;
