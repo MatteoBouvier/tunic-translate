@@ -2,6 +2,7 @@ import { vowels_list, vowels } from "./vowels.js";
 import { consonants_list, consonants } from "./consonants.js";
 import { set_vowel, set_consonant, add_character, add_character_if_set, write_character, reset_character } from "./characters.js";
 import { build_letter } from "./segments.js";
+import { setup_gallery_buttons, display_page } from "./images.js";
 
 let key_buffer = "";
 
@@ -80,6 +81,7 @@ function handle_keybinding(event) {
 }
 
 (() => {
+    // character buffer
     let container = document.querySelector("#vowels_container");
     for (const [code, letter] of Object.entries(vowels)) {
         container.appendChild(build_letter(code, letter, true));
@@ -92,5 +94,10 @@ function handle_keybinding(event) {
 
     add_character();
 
+    // image display
+    setup_gallery_buttons();
+    display_page(1);
+
+    // key bindings
     document.onkeydown = handle_keybinding;
 })()

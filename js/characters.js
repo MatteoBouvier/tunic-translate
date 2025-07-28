@@ -95,7 +95,7 @@ export function write_character(reset = false) {
 
     for (let character of characters) {
         let [vowel, consonant, _] = match_letter(character);
-        if (vowel === "" && consonant_code === "") { break; }
+        if (vowel === "" && consonant === "") { break; }
 
         if (vowel === undefined) {
             is_valid = false;

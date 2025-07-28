@@ -8,6 +8,7 @@
         <link href="css/style.css" rel="stylesheet">
         <link href="css/colors.css" rel="stylesheet">
         <link href="css/segments.css" rel="stylesheet">
+        <link href="css/images.css" rel="stylesheet">
 
         <link rel="icon" href="favicon.ico" type="image/x-icon">
 
@@ -15,6 +16,18 @@
     </head>
     <body>
         <div class="box">
+            <div>
+                <div class="box">
+                    <div id="image-gallery">
+                        <div id="gallery-previous" class="gallery-arrow" onmousedown="display_previous_page()"></div>
+                        <img src="" alt="">
+                        <div id="gallery-next" class="gallery-arrow" onmousedown="display_next_page()"></div>
+                    </div>
+                    
+                    <div id="gallery-buttons"></div>
+                </div>
+            </div>
+
             <div class="row">
                 <div class="item" style="max-width:50%;">
                     <h1>Vowels</h1>

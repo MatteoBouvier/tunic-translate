@@ -1,0 +1,66 @@
+#image-gallery {
+    width: 90vw;
+    height: 50vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 5%;
+}
+
+#image-gallery img {
+    height: 100%;
+    max-width: 80vw;
+    background-color: var(--tunic-brown);
+    border: 5px solid var(--tunic-brown);
+    border-radius: 5px;
+}
+
+.gallery-arrow {
+    height: 30px;
+    width: 30px;
+    transform: rotate(45deg);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.gallery-arrow:hover {
+    border-color: var(--tunic-brown) !important;
+}
+
+#gallery-previous {
+    border-left: 10px solid var(--tunic-sage);
+    border-bottom: 10px solid var(--tunic-sage);
+}
+
+#gallery-next {
+    border-top: 10px solid var(--tunic-sage);
+    border-right: 10px solid var(--tunic-sage);
+}
+
+#gallery-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+#gallery-buttons > button {
+    width: fit-content;
+    height: fit-content;
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
+    border: none;
+    color: var(--tunic-sage);
+}
+
+.gallery-btn-current {
+    text-decoration: underline;
+    color: var(--tunic-brown) !important;
+}
+
+#gallery-buttons > button:hover{
+    transform: none;
+    transition-duration: 0ms;
+    color: var(--tunic-brown);
+    text-decoration: underline;
+}
