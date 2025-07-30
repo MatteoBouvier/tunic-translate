@@ -3,6 +3,7 @@ import { consonants_list, consonants } from "./consonants.js";
 import { set_vowel, set_consonant, add_character, add_character_if_set, write_character, reset_character } from "./characters.js";
 import { build_letter } from "./segments.js";
 import { setup_gallery_buttons, display_page } from "./images.js";
+import { make_text_buffer } from "./text.js";
 
 let key_buffer = "";
 
@@ -82,6 +83,8 @@ function handle_keybinding(event) {
 
 (() => {
     // character buffer
+    document.querySelector("#text-buffer-container > .row").appendChild(make_text_buffer());
+
     let container = document.querySelector("#vowels_container");
     for (const [code, letter] of Object.entries(vowels)) {
         container.appendChild(build_letter(code, letter, true));
