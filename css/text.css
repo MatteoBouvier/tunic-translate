@@ -19,6 +19,14 @@
     background-color: var(--tunic-sand);
     border: 4px solid var(--tunic-brown);
     border-radius: 5px;
+
+    &.active {
+        border-width: 7px;
+    }
+
+    & .text-buffer {
+        height: 100%;
+    }
 }
 
 .text-buffer-button {

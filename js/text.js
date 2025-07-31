@@ -1,10 +1,21 @@
-export function make_text_buffer() {
+export let current = {
+    active: undefined,
+    mode: "normal",
+}
+
+export function make_text_buffer(active = false) {
     let wrapper = document.createElement("div");
     wrapper.classList.add("text-buffer-wrapper");
+
+    if (active) {
+        wrapper.classList.add("active");
+        current.active = wrapper;
+    }
 
     // text buffer
     let buffer = document.createElement("div");
     buffer.classList.add("text-buffer");
+    buffer.onclick = update_active;
     wrapper.appendChild(buffer);
 
     // button add right
@@ -29,6 +40,16 @@ export function make_text_buffer() {
     wrapper.appendChild(button_remove);
 
     return wrapper
+}
+
+function update_active() {
+    set_active(this.parentElement);
+}
+
+export function set_active(buffer) {
+    current.active.classList.remove("active");
+    current.active = buffer;
+    current.active.classList.add("active");
 }
 
 function add_text_buffer_right(source) {
@@ -78,6 +99,16 @@ function remove_text_buffer(event) {
     const wrapper = button.parentElement;
     const parent = wrapper.parentElement;
 
+    if (wrapper.classList.contains("active")) {
+        for (const direction of ["right", "left", "down", "up"]) {
+            let sibling = find_nearest(wrapper, direction);
+            if (sibling !== null) {
+                set_active(sibling);
+                break;
+            }
+        }
+    }
+
     wrapper.remove();
     cleanup(parent);
 }
@@ -87,7 +118,7 @@ function cleanup(node) {
 
     if (node.classList.contains("row") && node.children.length == 0) {
         if (node.parentElement.id === "text-buffer-container" && node.parentElement.children.length == 1) {
-            node.appendChild(make_text_buffer());
+            node.appendChild(make_text_buffer(true));
         }
         else {
             const parent = node.parentElement;
@@ -100,5 +131,30 @@ function cleanup(node) {
             node.insertAdjacentElement("beforebegin", child);
         }
         node.remove();
+    }
+}
+
+/**
+ * @param {HTMLDivElement} buffer
+ * @param {('right'|'left'|'up'|'down')} direction
+ * @returns {HTMLDivElement|null}
+ */
+export function find_nearest(buffer, direction) {
+    if (direction === "right") {
+        return buffer.nextElementSibling;
+    }
+    else if (direction === "left") {
+        return buffer.previousElementSibling;
+    }
+    else if (direction === "up") {
+        let sibling = buffer.parentElement.previousElementSibling;
+        return sibling === null ? null : sibling.children[0];
+    }
+    else if (direction === "down") {
+        let sibling = buffer.parentElement.nextElementSibling;
+        return sibling === null ? null : sibling.children[0];
+    }
+    else {
+        throw new Error("Invalid direction", direction);
     }
 }
