@@ -53,3 +53,25 @@ function display_next_page() {
     display_page(next_page_nb);
 }
 window.display_next_page = display_next_page;
+
+
+function handle_zoom_in(node, event) {
+    let offsetX = parseInt(node.dataset.offsetX) - event.movementX;
+    let offsetY = parseInt(node.dataset.offsetY) - event.movementY;
+
+    node.dataset.offsetX = offsetX;
+    node.dataset.offsetY = offsetY;
+
+    node.style.transform = "scale(1.5)";
+    node.style.transform += `translate(${offsetX}px, ${offsetY}px)`;
+}
+window.handle_zoom_in = handle_zoom_in;
+
+function handle_zoom_out(node) {
+    node.style.transform = "";
+
+    node.dataset.offsetX = 0;
+    node.dataset.offsetY = 0;
+
+}
+window.handle_zoom_out = handle_zoom_out;

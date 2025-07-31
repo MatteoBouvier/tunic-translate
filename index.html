@@ -19,7 +19,7 @@
                 <div class="box">
                     <div id="image-gallery">
                         <div id="gallery-previous" class="gallery-arrow" onmousedown="display_previous_page()"></div>
-                        <img src="" alt="">
+                        <img src="" alt="" data-offset-x=0 data-offset-y=0 onmousemove="handle_zoom_in(this, event)" onmouseout="handle_zoom_out(this)">
                         <div id="gallery-next" class="gallery-arrow" onmousedown="display_next_page()"></div>
                     </div>
                     
@@ -59,3 +59,5 @@
 </html>
 
 <!-- TODO: cursor for char buffer position -> edit written char -->
+<!-- TODO: redo key bindings  -->
+<!-- TODO: zoom on image -->
