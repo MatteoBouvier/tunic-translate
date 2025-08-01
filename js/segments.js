@@ -3,9 +3,9 @@ import { consonants } from "./consonants.js";
 import { set_vowel, set_consonant } from "./characters.js"
 
 /**
- * @param {binary} code binary representation of active segments
+ * @param {number} code - binary representation of active segments
  * @param {string} letter
- * @param {bool} is_vowel
+ * @param {boolean} is_vowel
  * @returns {HTMLDivElement}
 */
 export function build_letter(code, letter, is_vowel) {
@@ -30,7 +30,7 @@ export function build_letter(code, letter, is_vowel) {
         length = 7;
     }
 
-    for (const i of Array(length).keys()) {
+    for (let i = 0; i < length; i++) {
         if (code & (1 << i)) {
             let segment = document.createElement("div");
             segment.classList.add("segment", prefix + i);
@@ -63,14 +63,14 @@ export function match_letter(character) {
     let consonant_code = 0;
 
     for (const segment of character.querySelectorAll(".vowel")) {
-        if (segment.dataset.status == "on") {
+        if (segment instanceof HTMLElement && segment.dataset.status == "on") {
             const index = parseInt(segment.classList[2][1]);
             vowel_code += 2 ** index;
         }
     }
 
     for (const segment of character.querySelectorAll(".consonant")) {
-        if (segment.dataset.status == "on") {
+        if (segment instanceof HTMLElement && segment.dataset.status == "on") {
             const index = parseInt(segment.classList[2][1]);
             consonant_code += 2 ** index;
         }
@@ -79,14 +79,14 @@ export function match_letter(character) {
     const vowel = vowel_code === 0 ? "" : vowels[vowel_code];
     const consonant = consonant_code === 0 ? "" : consonants[consonant_code];
 
-    const reversed = character.querySelector(".circle").dataset.status == "on";
+    /** @type {HTMLElement} */
+    const circle = character.querySelector(".circle");
+    const reversed = circle.dataset.status == "on";
 
     return [vowel, consonant, reversed];
 }
 
 
-/**
- * @param {HTMLDivElement} segment */
 export function segment_click() {
     let new_status = this.dataset.status == "off" ? "on" : "off";
     let character = this.parentNode;

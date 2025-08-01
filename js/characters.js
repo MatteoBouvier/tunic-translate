@@ -13,7 +13,7 @@ export function add_character() {
     character.classList.add("segment_box", "selectable");
 
     // vowel segments
-    for (const i of Array(5).keys()) {
+    for (let i = 0; i < 5; i++) {
         let segment = document.createElement("div");
         segment.classList.add("segment", "vowel", `v${i}`);
         segment.dataset.status = "off";
@@ -30,7 +30,7 @@ export function add_character() {
     character.appendChild(segment);
 
     // consonant segments
-    for (const i of Array(7).keys()) {
+    for (let i = 0; i < 7; i++) {
         let segment = document.createElement("div");
         segment.classList.add("segment", "consonant", `c${i}`);
 
@@ -64,7 +64,8 @@ export function add_character() {
     character_buffer.appendChild(character);
 
     if (character_buffer.children.length > 1) {
-        let bar = character_buffer.firstChild.querySelector(".Hbar");
+        /** @type {HTMLElement} */
+        let bar = character_buffer.firstElementChild.querySelector(".Hbar");
         bar.classList.remove("noshow");
         bar.style.width = `${character_buffer.children.length * 80}px`;
 
@@ -76,9 +77,13 @@ export function add_character() {
 
 export function add_character_if_set() {
     const characters = document.querySelector("#character_buffer").children;
-    let last_character = characters[characters.length - 1];
+    const last_character = characters[characters.length - 1];
 
-    if ([...last_character.children].some((segment) => segment.dataset.status == "on")) {
+    /** @type {HTMLElement[]} */
+    // @ts-ignore
+    const segments = Array.from(last_character.children);
+
+    if (segments.some((segment) => segment.dataset.status == "on")) {
         add_character();
     }
 }
@@ -88,6 +93,8 @@ export function add_character_if_set() {
  * @param {boolean} [reset=false] reset current character after writing ?
  */
 export function write_character(reset = false) {
+    /** @type {HTMLDivElement[]} */
+    // @ts-ignore
     let characters = document.querySelector("#character_buffer").children;
 
     let text_buffer = "";
@@ -115,7 +122,9 @@ export function write_character(reset = false) {
         }
 
         if (vowel != undefined && consonant != undefined) {
-            if (character.querySelector(".circle").dataset.status === "on") {
+            /** @type {HTMLElement} */
+            const circle = character.querySelector(".circle");
+            if (circle.dataset.status === "on") {
                 text_buffer += vowel + consonant;
             } else {
                 text_buffer += consonant + vowel;
@@ -137,7 +146,7 @@ export function write_character(reset = false) {
     }
 
 }
-window.write_character = write_character;
+globalThis.write_character = write_character;
 
 
 /**
@@ -167,25 +176,36 @@ export function reset_character(n = -1) {
     else if (characters.children.length === 1) {
         characters.classList.remove("short_hbar");
 
-        let bar = characters.firstChild.querySelector(".Hbar");
+        let bar = characters.firstElementChild.querySelector(".Hbar");
         bar.classList.add("noshow");
     }
     else {
-        let bar = characters.firstChild.querySelector(".Hbar");
-        bar.style.width = `${character_buffer.children.length * 80}px`;
+        /** @type {HTMLElement} */
+        let bar = characters.firstElementChild.querySelector(".Hbar");
+        bar.style.width = `${characters.children.length * 80}px`;
     }
 }
-window.reset_character = reset_character;
+globalThis.reset_character = reset_character;
 
+/**
+ * @param {Element} character
+ */
 function is_vowel_set(character) {
-    if ([...character.querySelectorAll(".vowel")].some((segment) => segment.dataset.status == "on")) {
+    /** @type {HTMLElement[]} */
+    const segments = Array.from(character.querySelectorAll(".vowel"));
+    if (segments.some((segment) => segment.dataset.status == "on")) {
         return true;
     }
     return false;
 }
 
+/**
+ * @param {Element} character
+ */
 function is_consonant_set(character) {
-    if ([...character.querySelectorAll(".consonant")].some((segment) => segment.dataset.status == "on")) {
+    /** @type {HTMLElement[]} */
+    const segments = Array.from(character.querySelectorAll(".consonant"));
+    if (segments.some((segment) => segment.dataset.status == "on")) {
         return true;
     }
     return false;
@@ -205,13 +225,17 @@ export function set_vowel(letter) {
 
     const vowel_code = vowels_rev[letter];
 
-    for (const segment of last_character.querySelectorAll(".vowel")) {
+    /** @type {NodeListOf<HTMLElement>} */
+    const vowels = last_character.querySelectorAll(".vowel");
+    for (const segment of vowels) {
         const index = parseInt(segment.classList[2][1]);
-        const new_status = vowel_code & (1 << index) ? "on" : "off";
+        const new_status = vowel_code.length & (1 << index) ? "on" : "off";
         segment.dataset.status = new_status;
 
         if (index === 2) {
-            last_character.querySelector(".v2-bottom").dataset.status = new_status;
+            /** @type {HTMLElement} */
+            const v2 = last_character.querySelector(".v2-bottom");
+            v2.dataset.status = new_status;
         }
     }
 
@@ -232,14 +256,18 @@ export function set_consonant(letter) {
     }
 
     if (is_vowel_set(last_character)) {
-        last_character.querySelector(".circle").dataset.status = "on";
+        /** @type {HTMLElement} */
+        const circle = last_character.querySelector(".circle");
+        circle.dataset.status = "on";
     }
 
     const consonant_code = consonants_rev[letter];
 
-    for (const segment of last_character.querySelectorAll(".consonant")) {
+    /** @type {NodeListOf<HTMLElement>} */
+    const consonants = last_character.querySelectorAll(".consonant");
+    for (const segment of consonants) {
         const index = parseInt(segment.classList[2][1]);
-        segment.dataset.status = consonant_code & (1 << index) ? "on" : "off";
+        segment.dataset.status = consonant_code.length & (1 << index) ? "on" : "off";
     }
 
     last_character.querySelector(".char-description").innerHTML += letter;

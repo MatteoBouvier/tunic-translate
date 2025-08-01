@@ -46,16 +46,25 @@ function update_active() {
     set_active(this.parentElement);
 }
 
+/**
+ * @param {HTMLDivElement} buffer
+ */
 export function set_active(buffer) {
     current.active.classList.remove("active");
     current.active = buffer;
     current.active.classList.add("active");
 }
 
+/**
+ * @param {HTMLElement} source
+ */
 function add_text_buffer_right(source) {
     source.insertAdjacentElement("afterend", make_text_buffer());
 }
 
+/**
+ * @param {HTMLElement} source
+ */
 function add_text_buffer_bottom(source) {
     let new_row = document.createElement("div");
     new_row.classList.add("row");
@@ -79,8 +88,15 @@ function add_text_buffer_bottom(source) {
 
 }
 
+/**
+ * @param {MouseEvent} event
+ */
 function add_text_buffer(event) {
     const button = event.target;
+    if (!(button instanceof HTMLElement)) {
+        throw new Error("Got invalid button");
+    }
+
     const wrapper = button.parentElement;
 
     if (button.classList.contains("right")) {
@@ -90,17 +106,24 @@ function add_text_buffer(event) {
         add_text_buffer_bottom(wrapper);
 
     } else {
-        throw new Error("Got invalid direction", where);
+        throw new Error("Got invalid direction");
     }
 }
 
+/**
+ * @param {MouseEvent} event
+ */
 function remove_text_buffer(event) {
     const button = event.target;
+    if (!(button instanceof HTMLElement)) {
+        throw new Error("Got invalid button");
+    }
+
     const wrapper = button.parentElement;
     const parent = wrapper.parentElement;
 
     if (wrapper.classList.contains("active")) {
-        for (const direction of ["right", "left", "down", "up"]) {
+        for (const direction of Object.keys(Direction)) {
             let sibling = find_nearest(wrapper, direction);
             if (sibling !== null) {
                 set_active(sibling);
@@ -113,6 +136,9 @@ function remove_text_buffer(event) {
     cleanup(parent);
 }
 
+/**
+ * @param {HTMLElement} node
+ */
 function cleanup(node) {
     if (node.id === "text-buffer-container") { return; }
 
@@ -135,26 +161,45 @@ function cleanup(node) {
 }
 
 /**
- * @param {HTMLDivElement} buffer
- * @param {('right'|'left'|'up'|'down')} direction
+ * @readonly
+ * @enum {string}
+ */
+const Direction = Object.freeze({
+    right: "right",
+    left: "left",
+    up: "up",
+    down: "down",
+})
+
+/**
+ * @param {HTMLElement} buffer
+ * @param {Direction} direction
  * @returns {HTMLDivElement|null}
  */
 export function find_nearest(buffer, direction) {
-    if (direction === "right") {
-        return buffer.nextElementSibling;
+    const element = (() => {
+        if (direction === Direction.right) {
+            return buffer.nextElementSibling;
+        }
+        else if (direction === Direction.left) {
+            return buffer.previousElementSibling;
+        }
+        else if (direction === Direction.up) {
+            let sibling = buffer.parentElement.previousElementSibling;
+            return sibling?.children[0];
+        }
+        else if (direction === Direction.down) {
+            let sibling = buffer.parentElement.nextElementSibling;
+            return sibling?.children[0];
+        }
+        else {
+            throw new Error("Invalid direction " + direction);
+        }
+    })();
+
+    if (element instanceof HTMLDivElement) {
+        return element;
     }
-    else if (direction === "left") {
-        return buffer.previousElementSibling;
-    }
-    else if (direction === "up") {
-        let sibling = buffer.parentElement.previousElementSibling;
-        return sibling === null ? null : sibling.children[0];
-    }
-    else if (direction === "down") {
-        let sibling = buffer.parentElement.nextElementSibling;
-        return sibling === null ? null : sibling.children[0];
-    }
-    else {
-        throw new Error("Invalid direction", direction);
-    }
+
+    throw new Error("Got Invalid sibling");
 }

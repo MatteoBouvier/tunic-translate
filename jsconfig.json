@@ -1,0 +1,7 @@
+{
+    "compilerOptions": {
+        "checkJs": true,
+        "lib": ["dom", "dom.iterable", "es2022"],
+        "target": "es6"
+    }
+}

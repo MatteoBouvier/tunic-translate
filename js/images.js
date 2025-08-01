@@ -9,10 +9,10 @@ export function setup_gallery_buttons() {
         btn.classList.add("gallery-btn");
 
         if (i == MIN_PAGE_NB) {
-            btn.innerText = i * 2;
+            btn.innerText = `${i * 2}`;
             btn.classList.add("gallery-btn-current");
         } else if (i == MAX_PAGE_NB) {
-            btn.innerText = i * 2 - 1;
+            btn.innerText = `${i * 2 - 1}`;
         } else {
             btn.innerText = `${i * 2 - 1}-${i * 2}`;
         }
@@ -26,6 +26,7 @@ export function setup_gallery_buttons() {
  * @param {number} nb
  */
 export function display_page(nb) {
+    /** @type{HTMLImageElement} */
     let image = document.querySelector("#image-gallery img");
     image.src = `images/${nb}.jpg`;
 
@@ -37,41 +38,50 @@ export function display_page(nb) {
 }
 
 function display_previous_page() {
+    /** @type{HTMLImageElement} */
     let image = document.querySelector("#image-gallery > img");
     const current_page_nb = parseInt(image.src.split("/").at(-1).split(".")[0]);
     const previous_page_nb = Math.max(MIN_PAGE_NB, current_page_nb - 1);
 
     display_page(previous_page_nb);
 }
-window.display_previous_page = display_previous_page;
+globalThis.display_previous_page = display_previous_page;
 
 function display_next_page() {
+    /** @type{HTMLImageElement} */
     let image = document.querySelector("#image-gallery > img");
     const current_page_nb = parseInt(image.src.split("/").at(-1).split(".")[0]);
     const next_page_nb = Math.min(MAX_PAGE_NB, current_page_nb + 1);
 
     display_page(next_page_nb);
 }
-window.display_next_page = display_next_page;
+globalThis.display_next_page = display_next_page;
 
 
+/**
+ * @param {HTMLElement} node
+ * @param {MouseEvent} event
+ */
 function handle_zoom_in(node, event) {
     let offsetX = parseInt(node.dataset.offsetX) - event.movementX;
     let offsetY = parseInt(node.dataset.offsetY) - event.movementY;
 
-    node.dataset.offsetX = offsetX;
-    node.dataset.offsetY = offsetY;
+    node.dataset.offsetX = offsetX.toString();
+    node.dataset.offsetY = offsetY.toString();
 
     node.style.transform = "scale(1.5)";
     node.style.transform += `translate(${offsetX}px, ${offsetY}px)`;
 }
-window.handle_zoom_in = handle_zoom_in;
+globalThis.handle_zoom_in = handle_zoom_in;
 
+/**
+ * @param {HTMLElement} node
+ */
 function handle_zoom_out(node) {
     node.style.transform = "";
 
-    node.dataset.offsetX = 0;
-    node.dataset.offsetY = 0;
+    node.dataset.offsetX = "0";
+    node.dataset.offsetY = "0";
 
 }
-window.handle_zoom_out = handle_zoom_out;
+globalThis.handle_zoom_out = handle_zoom_out;

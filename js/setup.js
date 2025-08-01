@@ -16,16 +16,30 @@ const Mode = Object.freeze({
     insert: "insert"
 })
 
+/** 
+ * A key binding definition.
+ * @typedef {Object} Binding
+ * @property {() => void} action - action to perform for the key binding
+ * @property {?string[]} modifiers - key modifiers that must be pressed (Alt, Shift, Ctrl, Meta)
+ */
+
+/** @type {Object.<Mode, Object.<string, (Binding | Binding[])>>} */
 const key_binding = {
     [Mode.normal]: {
-        h: {
-            action: () => {
-                let sibling = find_nearest(current.active, "left");
-                if (sibling !== null) {
-                    set_active(sibling);
+        h: [
+            {
+                action: () => {
+                    let sibling = find_nearest(current.active, "left");
+                    if (sibling !== null) {
+                        set_active(sibling);
+                    }
                 }
-            }
-        },
+            },
+            {
+                action: () => { console.log("hi!") },
+                modifiers: ['Alt']
+            },
+        ],
         l: {
             action: () => {
                 let sibling = find_nearest(current.active, "right");
@@ -58,6 +72,50 @@ const key_binding = {
         Escape: {
             action: () => { current.mode = Mode.normal }
         }
+    },
+
+    /**
+     * match a pressed key with a key-binding's action
+     * @param {KeyboardEvent} keypress
+     * @returns {() => void|undefined}
+     */
+    match(keypress) {
+        const binding = this[current.mode][keypress.key];
+        if (typeof binding === "undefined") {
+            return undefined;
+        }
+        else if (Array.isArray(binding)) {
+            for (const b of binding) {
+                let verified = this.verify_modifiers(keypress, b);
+                if (verified !== null) {
+                    return verified.action;
+                }
+            }
+
+            return undefined;
+
+        } else {
+            return this.verify_modifiers(keypress, binding)?.action;
+        }
+    },
+
+    /**
+     * Match a pressed key with a key-binding's action
+     * @param {KeyboardEvent} keypress
+     * @param {Binding} binding
+     * @returns {?Binding}
+     */
+    verify_modifiers(keypress, binding) {
+        let modifiers = binding.modifiers ?? [];
+
+        if (keypress.altKey === modifiers.includes("Alt")
+            && keypress.shiftKey === modifiers.includes("Shift")
+            && keypress.ctrlKey === modifiers.includes("Ctrl")
+            && keypress.metaKey === modifiers.includes("Meta")) {
+            return binding;
+        }
+
+        return null;
     }
 }
 
@@ -67,10 +125,8 @@ function handle_keybinding(event) {
         event.preventDefault();
     }
 
-    let action = key_binding[current.mode][event.key]?.action;
-    if (action != undefined) {
-        action();
-    }
+    let action = key_binding.match(event) ?? (() => { });
+    action();
 
     // if (event.code == "BracketLeft") {
     //     if (event.shiftKey) {
@@ -178,12 +234,12 @@ function handle_keybinding(event) {
     document.querySelector("#text-buffer-container > .row").appendChild(make_text_buffer(true));
 
     let container = document.querySelector("#vowels_container");
-    for (const [code, letter] of Object.entries(vowels)) {
+    for (const [code, letter] of vowels) {
         container.appendChild(build_letter(code, letter, true));
     }
 
     container = document.querySelector("#consonants_container");
-    for (const [code, letter] of Object.entries(consonants)) {
+    for (const [code, letter] of consonants) {
         container.appendChild(build_letter(code, letter, false));
     }
 
