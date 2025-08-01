@@ -67,7 +67,7 @@ function handle_keybinding(event) {
         event.preventDefault();
     }
 
-    let action = key_binding[current.mode][event.key].action;
+    let action = key_binding[current.mode][event.key]?.action;
     if (action != undefined) {
         action();
     }
