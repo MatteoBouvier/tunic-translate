@@ -36,34 +36,72 @@ const key_binding = {
                 }
             },
             {
-                action: () => { console.log("hi!") },
+                action: () => {
+                    let sibling = find_nearest(current.active, "left");
+                    if (sibling !== null) {
+                        sibling.insertAdjacentElement("beforebegin", current.active);
+                    }
+                },
                 modifiers: ['Alt']
             },
         ],
-        l: {
-            action: () => {
-                let sibling = find_nearest(current.active, "right");
-                if (sibling !== null) {
-                    set_active(sibling);
+        l: [
+            {
+                action: () => {
+                    let sibling = find_nearest(current.active, "right");
+                    if (sibling !== null) {
+                        set_active(sibling);
+                    }
                 }
+            },
+            {
+                action: () => {
+                    let sibling = find_nearest(current.active, "right");
+                    if (sibling !== null) {
+                        sibling.insertAdjacentElement("afterend", current.active);
+                    }
+                },
+                modifiers: ['Alt']
             }
-        },
-        k: {
-            action: () => {
-                let sibling = find_nearest(current.active, "up");
-                if (sibling !== null) {
-                    set_active(sibling);
+        ],
+        k: [
+            {
+                action: () => {
+                    let sibling = find_nearest(current.active, "up");
+                    if (sibling !== null) {
+                        set_active(sibling);
+                    }
                 }
+            },
+            {
+                action: () => {
+                    let sibling = find_nearest(current.active, "up");
+                    if (sibling !== null) {
+                        sibling.insertAdjacentElement("beforebegin", current.active);
+                    }
+                },
+                modifiers: ['Alt']
             }
-        },
-        j: {
-            action: () => {
-                let sibling = find_nearest(current.active, "down");
-                if (sibling !== null) {
-                    set_active(sibling);
+        ],
+        j: [
+            {
+                action: () => {
+                    let sibling = find_nearest(current.active, "down");
+                    if (sibling !== null) {
+                        set_active(sibling);
+                    }
                 }
+            },
+            {
+                action: () => {
+                    let sibling = find_nearest(current.active, "down");
+                    if (sibling !== null) {
+                        sibling.insertAdjacentElement("afterend", current.active);
+                    }
+                },
+                modifiers: ['Alt']
             }
-        },
+        ],
         i: {
             action: () => { current.mode = Mode.insert }
         }
