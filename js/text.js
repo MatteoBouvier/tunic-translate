@@ -1,6 +1,26 @@
+import { add_character } from "./characters.js";
+
+/**
+ * @readonly
+ * @enum {string}
+ */
+export const Mode = Object.freeze({
+    normal: "normal",
+    insert: "insert"
+})
+
+/**
+ * @typedef {Object} GlobalCurrent
+ * @property {?HTMLElement} active
+ * @property {Mode} mode
+ */
+
+/**
+ * @type {GlobalCurrent}
+ */
 export let current = {
     active: undefined,
-    mode: "normal",
+    mode: Mode.normal,
 }
 
 export function make_text_buffer(active = false) {
@@ -53,6 +73,21 @@ export function set_active(buffer) {
     current.active.classList.remove("active");
     current.active = buffer;
     current.active.classList.add("active");
+}
+
+/**
+ * @param {Mode} mode
+ */
+export function set_mode(mode) {
+    current.mode = mode;
+
+    if (mode === Mode.insert) {
+        current.active.classList.add("insert");
+        add_character(current.active.querySelector(".text-buffer"));
+    }
+    else {
+        current.active.classList.remove("insert");
+    }
 }
 
 /**

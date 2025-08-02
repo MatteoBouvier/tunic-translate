@@ -15,7 +15,7 @@
 .text-buffer-wrapper {
     position: relative;
     flex-grow: 1;
-    min-height: 100px;
+    min-height: 150px;
     background-color: var(--tunic-sand);
     border: 4px solid var(--tunic-brown);
     border-radius: 5px;
@@ -24,8 +24,13 @@
         border-width: 7px;
     }
 
+    &.insert {
+        border-color: var(--tunic-dark-green);
+    }
+
     & .text-buffer {
         height: 100%;
+        display: flex;
     }
 }
 

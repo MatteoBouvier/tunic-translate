@@ -1,5 +1,3 @@
-export const vowels_list = ['a', 'á', 'à', 'â', 'ä', 'e', 'é', 'è', 'ê', 'i', 'î', 'ï', 'o', 'ô', 'u', 'û', 'y', 'ÿ'];
-
 export const vowels = new Map([
     [0b00001, "à"],
     [0b00010, "á"],
@@ -21,4 +19,4 @@ export const vowels = new Map([
     [0b11111, "ô"],
 ]);
 
-export const vowels_rev = Object.fromEntries(Object.entries(vowels).map(([k, v]) => [v, k]));
+export const vowels_rev = new Map(Array.from(vowels, ([k, v]) => [v, k]));

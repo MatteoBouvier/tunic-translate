@@ -1,30 +1,35 @@
-import { vowels_list, vowels } from "./vowels.js";
-import { consonants_list, consonants } from "./consonants.js";
-import { set_vowel, set_consonant, add_character, add_character_if_set, write_character, reset_character } from "./characters.js";
+import { vowels } from "./vowels.js";
+import { consonants } from "./consonants.js";
+import { add_character_if_set, reset_character, send_key } from "./characters.js";
 import { build_letter } from "./segments.js";
 import { setup_gallery_buttons, display_page } from "./images.js";
-import { make_text_buffer, current, find_nearest, set_active } from "./text.js";
+import { make_text_buffer, current, find_nearest, set_active, set_mode, Mode } from "./text.js";
 
-let key_buffer = "";
+/** @type {() => HTMLElement} */
+let current_text_buffer = () => current.active.querySelector(".text-buffer");
 
 /**
  * @readonly
  * @enum {string}
  */
-const Mode = Object.freeze({
-    normal: "normal",
-    insert: "insert"
+const Accent = Object.freeze({
+    dieresis: "dieresis",
+    circumflex: "circumflex"
 })
+
+/** @type {?Accent} */
+let key_buffer = null;
 
 /** 
  * A key binding definition.
  * @typedef {Object} Binding
- * @property {() => void} action - action to perform for the key binding
- * @property {?string[]} modifiers - key modifiers that must be pressed (Alt, Shift, Ctrl, Meta)
+ * @property {(arg0: KeyboardEvent) => void} action - action to perform for the key binding
+ * @property {?string[]} [modifiers] - key modifiers that must be pressed (Alt, Shift, Ctrl, Meta)
+ * @property {boolean} [skip_after=false] - do not call _after() callback for this binding
  */
 
-/** @type {Object.<Mode, Object.<string, (Binding | Binding[])>>} */
 const key_binding = {
+    /** @type {Object.<string, (Binding | Binding[])>} */
     [Mode.normal]: {
         h: [
             {
@@ -103,42 +108,128 @@ const key_binding = {
             }
         ],
         i: {
-            action: () => { current.mode = Mode.insert }
+            action: () => set_mode(Mode.insert)
         }
     },
+
+    /** @type {Object.<string, (Binding | Binding[])>} */
     [Mode.insert]: {
         Escape: {
-            action: () => { current.mode = Mode.normal }
+            action: () => set_mode(Mode.normal)
+        },
+        Backspace: {
+            action: () => reset_character(current_text_buffer(), 1)
+        },
+        Tab: {
+            action: () => add_character_if_set(current_text_buffer())
+        },
+        Dead: {
+            action: (event) => {
+                if (event.code !== "BracketLeft") { return; }
+
+                if (event.shiftKey) {
+                    key_buffer = Accent.dieresis;
+                } else {
+                    key_buffer = Accent.circumflex;
+                }
+            },
+            skip_after: true,
+        },
+        "æ": {
+            action: () => send_key(current_text_buffer(), "á")
+        },
+        _default: {
+            action: (event) => send_key(current_text_buffer(), event.key),
+        },
+        _after: {
+            action: () => key_buffer = null,
         }
     },
 
     /**
-     * match a pressed key with a key-binding's action
-     * @param {KeyboardEvent} keypress
-     * @returns {() => void|undefined}
+     * Add a key-binding
+     * @param {string | string[]} key
+     * @param {(() => void)|((arg0: KeyboardEvent) => void)} action
+     * @param {Object} opts
+     * @param {boolean} [opts.needs_event=false] - KeyboardEvent should be passed to the action function ?
+     * @param {boolean} [opts.alt=false] - Alt modifier is set ?
+     * @param {boolean} [opts.shift=false] - Shift modifier is set ?
+     * @param {boolean} [opts.ctrl=false] - Ctrl modifier is set ?
+     * @param {boolean} [opts.meta=false] - Meta modifier is set ?
+     * @param {Mode} [opts.mode=Mode.normal]
+     * @param {boolean} [opts.skip_after=false]
      */
-    match(keypress) {
-        const binding = this[current.mode][keypress.key];
-        if (typeof binding === "undefined") {
-            return undefined;
+    add(key, action, { alt = false, shift = false, ctrl = false, meta = false, mode = Mode.normal, skip_after = false }) {
+        if (Array.isArray(key)) {
+            for (const k of key) {
+                this.add(k, action, { alt, shift, ctrl, meta, mode, skip_after });
+            }
+            return;
         }
-        else if (Array.isArray(binding)) {
-            for (const b of binding) {
-                let verified = this.verify_modifiers(keypress, b);
-                if (verified !== null) {
-                    return verified.action;
-                }
+
+        const mod_args = [alt, shift, ctrl, meta];
+        const modifiers = ["Alt", "Shift", "Ctrl", "Meta"].filter((_, index) => mod_args[index]);
+        const key_bind = {
+            action: action,
+            modifiers: modifiers,
+            skip_after: skip_after
+        }
+
+        if (key in this[mode]) {
+            if (!Array.isArray(this[mode][key])) {
+                this[mode][key] = [this[mode][key]];
             }
 
-            return undefined;
-
-        } else {
-            return this.verify_modifiers(keypress, binding)?.action;
+            this[mode][key].push(key_bind);
+        }
+        else {
+            this[mode][key] = key_bind;
         }
     },
 
     /**
      * Match a pressed key with a key-binding's action
+     * @param {KeyboardEvent} keypress
+     * @returns {() => void}
+     */
+    match(keypress) {
+        function wrapper(action = () => { }, _after = () => { }, skip_after = false) {
+            if (skip_after) {
+                return () => action();
+            }
+
+            return () => {
+                action();
+                _after();
+            }
+        }
+
+        const binding = this[current.mode][keypress.key];
+        const [action, skip_after] = (() => {
+            if (typeof binding === "undefined") {
+                return [this[current.mode]._default?.action?.bind(undefined, keypress), false];
+            }
+            else if (Array.isArray(binding)) {
+                for (const b of binding) {
+                    let verified = this.verify_modifiers(keypress, b);
+                    if (verified !== null) {
+                        return [verified.action.bind(undefined, keypress), verified.skip_after];
+                    }
+                }
+
+                return [undefined, false];
+
+            } else {
+                let verified = this.verify_modifiers(keypress, binding);
+                return [verified?.action?.bind(undefined, keypress), verified.skip_after];
+            }
+        })()
+
+        return wrapper(action, this[current.mode]._after?.action, skip_after);
+    },
+
+    /**
+     * Verify modifiers were correctly set for a key binding
      * @param {KeyboardEvent} keypress
      * @param {Binding} binding
      * @returns {?Binding}
@@ -157,30 +248,30 @@ const key_binding = {
     }
 }
 
+key_binding.add(Array.from("aeiouy"), (event) => {
+    if (key_buffer === Accent.circumflex) {
+        send_key(current_text_buffer(), event.key + "\u0302");
+    }
+    else if (key_buffer === Accent.dieresis) {
+        send_key(current_text_buffer(), event.key + "\u0308");
+    }
+    else {
+        send_key(current_text_buffer(), event.key);
+    }
+}, { mode: Mode.insert });
+
+
+/**
+ * @param {KeyboardEvent} event
+ */
 function handle_keybinding(event) {
     // disable default Tab action
-    if (event.keyCode === 9) {
+    if (event.code === "Tab") {
         event.preventDefault();
     }
 
-    let action = key_binding.match(event) ?? (() => { });
-    action();
+    key_binding.match(event)();
 
-    // if (event.code == "BracketLeft") {
-    //     if (event.shiftKey) {
-    //         key_buffer = "dieresis";
-    //     } else {
-    //         key_buffer = "circumflex";
-    //     }
-    //
-    //     return;
-    // }
-    //
-    // let key = event.key;
-    //
-    // if (key == "æ") {
-    //     key = "á";
-    // }
     // else if (key == " ") {
     //     key = "";
     //     write_character(true);
@@ -189,81 +280,7 @@ function handle_keybinding(event) {
     //     key = "";
     //     reset_character();
     // }
-    // else if (key == "Backspace") {
-    //     key = "";
-    //     reset_character(1);
-    // }
-    // else if (key == "Tab") {
-    //     key = "";
-    //     add_character_if_set();
-    // }
-    // else if (key == "Escape") {
-    //     key = "";
-    //     current.active.classList.remove("active");
-    // }
-    // else if (key_buffer == "circumflex") {
-    //     if (key === 'a') {
-    //         key = "â";
-    //     } else if (key == 'e') {
-    //         key = "ê";
-    //     } else if (key == 'i') {
-    //         key = "î";
-    //     } else if (key == "o") {
-    //         key = "ô";
-    //     } else if (key == "u") {
-    //         key = "û";
-    //     } else {
-    //         key = "";
-    //     }
-    // }
-    // else if (key_buffer == "dieresis") {
-    //     if (key === 'a') {
-    //         key = "ä";
-    //     } else if (key == 'i') {
-    //         key = "ï";
-    //     } else if (key == "y") {
-    //         key = "ÿ";
-    //     } else {
-    //         key = "";
-    //     }
-    // }
-    // key_buffer = "";
     //
-    // if (current.mode === "normal") {
-    //     if (key === "h") {
-    //         let sibling = find_nearest(current.active, "left");
-    //         if (sibling !== null) {
-    //             set_active(sibling);
-    //         }
-    //     }
-    //     else if (key === "l") {
-    //         let sibling = find_nearest(current.active, "right");
-    //         if (sibling !== null) {
-    //             set_active(sibling);
-    //         }
-    //     }
-    //     else if (key === "k") {
-    //         let sibling = find_nearest(current.active, "up");
-    //         if (sibling !== null) {
-    //             set_active(sibling);
-    //         }
-    //     }
-    //     else if (key === "j") {
-    //         let sibling = find_nearest(current.active, "down");
-    //         if (sibling !== null) {
-    //             set_active(sibling);
-    //         }
-    //     }
-    // }
-    // else if (current.mode === "insert") {
-    //     if (key === "" || event.altKey || event.shiftKey || event.ctrlKey || event.metaKey) { return; }
-    //
-    //     if (vowels_list.indexOf(key) !== -1) {
-    //         set_vowel(key);
-    //     } else if (consonants_list.indexOf(key) !== -1) {
-    //         set_consonant(key);
-    //     }
-    // }
 
 }
 
@@ -281,7 +298,7 @@ function handle_keybinding(event) {
         container.appendChild(build_letter(code, letter, false));
     }
 
-    add_character();
+    // add_character();
 
     // image display
     setup_gallery_buttons();

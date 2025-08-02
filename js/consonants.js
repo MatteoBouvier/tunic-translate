@@ -1,5 +1,3 @@
-export const consonants_list = ["c", "ç", "v", "d", "f", "h", "ħ", "s", "w", "l", "j", "ß", "q", "k", "z", "b", "g", "m", "µ", "r", "p", "t", "n", "x"];
-
 export const consonants = new Map([
     [0b1100000, "c"],
     [0b1110000, "ç"],
@@ -27,4 +25,4 @@ export const consonants = new Map([
     [0b1111111, "x"],
 ]);
 
-export const consonants_rev = Object.fromEntries(Object.entries(consonants).map(([k, v]) => [v, k]));
+export const consonants_rev = new Map(Array.from(consonants, ([k, v]) => [v, k]));

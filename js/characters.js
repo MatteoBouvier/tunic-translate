@@ -4,11 +4,10 @@ import { segment_click, match_letter } from "./segments.js";
 
 /** 
  * Add a character input box to the character buffer
+ * @param {HTMLElement} buffer
  * @returns {HTMLDivElement} the newly added character
  */
-export function add_character() {
-    let character_buffer = document.querySelector("#character_buffer");
-
+export function add_character(buffer) {
     let character = document.createElement("div");
     character.classList.add("segment_box", "selectable");
 
@@ -61,22 +60,25 @@ export function add_character() {
     character.appendChild(description);
 
     // finally append character
-    character_buffer.appendChild(character);
+    buffer.appendChild(character);
 
-    if (character_buffer.children.length > 1) {
+    if (buffer.children.length > 1) {
         /** @type {HTMLElement} */
-        let bar = character_buffer.firstElementChild.querySelector(".Hbar");
+        let bar = buffer.firstElementChild.querySelector(".Hbar");
         bar.classList.remove("noshow");
-        bar.style.width = `${character_buffer.children.length * 80}px`;
+        bar.style.width = `${buffer.children.length * 80}px`;
 
-        character_buffer.classList.add("short_hbar");
+        buffer.classList.add("short_hbar");
     }
 
     return character;
 }
 
-export function add_character_if_set() {
-    const characters = document.querySelector("#character_buffer").children;
+/**
+ * @param {HTMLElement} buffer
+ */
+export function add_character_if_set(buffer) {
+    const characters = buffer.children;
     const last_character = characters[characters.length - 1];
 
     /** @type {HTMLElement[]} */
@@ -84,7 +86,7 @@ export function add_character_if_set() {
     const segments = Array.from(last_character.children);
 
     if (segments.some((segment) => segment.dataset.status == "on")) {
-        add_character();
+        add_character(buffer);
     }
 }
 
@@ -151,38 +153,37 @@ globalThis.write_character = write_character;
 
 /**
  * Reset character buffer
+ * @param {HTMLElement} buffer
  * @param {number} [n=-1] number of characters to reset, all by default
  */
-export function reset_character(n = -1) {
-    let characters = document.querySelector("#character_buffer");
-
+export function reset_character(buffer, n = -1) {
     if (n === -1) {
-        characters.textContent = '';
-        characters.classList.remove("short_hbar");
-        add_character();
+        buffer.textContent = '';
+        buffer.classList.remove("short_hbar");
+        add_character(buffer);
         return;
     }
 
     while (n > 0) {
-        characters.removeChild(characters.lastChild);
+        buffer.removeChild(buffer.lastChild);
         n--;
     }
 
-    if (characters.children.length === 0) {
-        characters.classList.remove("short_hbar");
+    if (buffer.children.length === 0) {
+        buffer.classList.remove("short_hbar");
 
-        add_character();
+        add_character(buffer);
     }
-    else if (characters.children.length === 1) {
-        characters.classList.remove("short_hbar");
+    else if (buffer.children.length === 1) {
+        buffer.classList.remove("short_hbar");
 
-        let bar = characters.firstElementChild.querySelector(".Hbar");
+        let bar = buffer.firstElementChild.querySelector(".Hbar");
         bar.classList.add("noshow");
     }
     else {
         /** @type {HTMLElement} */
-        let bar = characters.firstElementChild.querySelector(".Hbar");
-        bar.style.width = `${characters.children.length * 80}px`;
+        let bar = buffer.firstElementChild.querySelector(".Hbar");
+        bar.style.width = `${buffer.children.length * 80}px`;
     }
 }
 globalThis.reset_character = reset_character;
@@ -213,23 +214,24 @@ function is_consonant_set(character) {
 
 /**
  * Set current vowel from string
+ * @param {HTMLElement} buffer
  * @param {string} letter
  */
-export function set_vowel(letter) {
-    const characters = document.querySelector("#character_buffer").children;
+export function set_vowel(buffer, letter) {
+    const characters = buffer.children;
     let last_character = characters[characters.length - 1];
 
     if (is_vowel_set(last_character)) {
-        last_character = add_character();
+        last_character = add_character(buffer);
     }
 
-    const vowel_code = vowels_rev[letter];
+    const vowel_code = vowels_rev.get(letter);
 
     /** @type {NodeListOf<HTMLElement>} */
     const vowels = last_character.querySelectorAll(".vowel");
     for (const segment of vowels) {
         const index = parseInt(segment.classList[2][1]);
-        const new_status = vowel_code.length & (1 << index) ? "on" : "off";
+        const new_status = vowel_code & (1 << index) ? "on" : "off";
         segment.dataset.status = new_status;
 
         if (index === 2) {
@@ -245,14 +247,15 @@ export function set_vowel(letter) {
 
 /**
  * Set current consonant from string
+ * @param {HTMLElement} buffer
  * @param {string} letter
  */
-export function set_consonant(letter) {
-    const characters = document.querySelector("#character_buffer").children;
+export function set_consonant(buffer, letter) {
+    const characters = buffer.children;
     let last_character = characters[characters.length - 1];
 
     if (is_consonant_set(last_character)) {
-        last_character = add_character();
+        last_character = add_character(buffer);
     }
 
     if (is_vowel_set(last_character)) {
@@ -261,14 +264,27 @@ export function set_consonant(letter) {
         circle.dataset.status = "on";
     }
 
-    const consonant_code = consonants_rev[letter];
+    const consonant_code = consonants_rev.get(letter);
 
     /** @type {NodeListOf<HTMLElement>} */
     const consonants = last_character.querySelectorAll(".consonant");
     for (const segment of consonants) {
         const index = parseInt(segment.classList[2][1]);
-        segment.dataset.status = consonant_code.length & (1 << index) ? "on" : "off";
+        segment.dataset.status = consonant_code & (1 << index) ? "on" : "off";
     }
 
     last_character.querySelector(".char-description").innerHTML += letter;
+}
+
+
+/**
+ * @param {HTMLElement} buffer
+ * @param {string} letter
+ */
+export function send_key(buffer, letter) {
+    if (vowels_rev.has(letter)) {
+        set_vowel(buffer, letter);
+    } else if (consonants_rev.has(letter)) {
+        set_consonant(buffer, letter);
+    }
 }

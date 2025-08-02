@@ -76,8 +76,8 @@ export function match_letter(character) {
         }
     }
 
-    const vowel = vowel_code === 0 ? "" : vowels[vowel_code];
-    const consonant = consonant_code === 0 ? "" : consonants[consonant_code];
+    const vowel = vowel_code === 0 ? "" : vowels.get(vowel_code);
+    const consonant = consonant_code === 0 ? "" : consonants.get(consonant_code);
 
     /** @type {HTMLElement} */
     const circle = character.querySelector(".circle");
