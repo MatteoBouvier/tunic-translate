@@ -199,7 +199,7 @@ function cleanup(node) {
  * @readonly
  * @enum {string}
  */
-const Direction = Object.freeze({
+export const Direction = Object.freeze({
     right: "right",
     left: "left",
     up: "up",
@@ -209,7 +209,7 @@ const Direction = Object.freeze({
 /**
  * @param {HTMLElement} buffer
  * @param {Direction} direction
- * @returns {HTMLDivElement|null}
+ * @returns {?HTMLDivElement}
  */
 export function find_nearest(buffer, direction) {
     const element = (() => {
@@ -234,6 +234,9 @@ export function find_nearest(buffer, direction) {
 
     if (element instanceof HTMLDivElement) {
         return element;
+    }
+    else if (typeof element === "undefined") {
+        return null;
     }
 
     throw new Error("Got Invalid sibling");

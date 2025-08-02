@@ -3,7 +3,7 @@ import { consonants } from "./consonants.js";
 import { add_character_if_set, reset_character, send_key } from "./characters.js";
 import { build_letter } from "./segments.js";
 import { setup_gallery_buttons, display_page } from "./images.js";
-import { make_text_buffer, current, find_nearest, set_active, set_mode, Mode } from "./text.js";
+import { make_text_buffer, current, find_nearest, set_active, set_mode, Mode, Direction } from "./text.js";
 
 /** @type {() => HTMLElement} */
 let current_text_buffer = () => current.active.querySelector(".text-buffer");
@@ -34,7 +34,7 @@ const key_binding = {
         h: [
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, "left");
+                    let sibling = find_nearest(current.active, Direction.left);
                     if (sibling !== null) {
                         set_active(sibling);
                     }
@@ -42,7 +42,7 @@ const key_binding = {
             },
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, "left");
+                    let sibling = find_nearest(current.active, Direction.left);
                     if (sibling !== null) {
                         sibling.insertAdjacentElement("beforebegin", current.active);
                     }
@@ -53,7 +53,7 @@ const key_binding = {
         l: [
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, "right");
+                    let sibling = find_nearest(current.active, Direction.right);
                     if (sibling !== null) {
                         set_active(sibling);
                     }
@@ -61,7 +61,7 @@ const key_binding = {
             },
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, "right");
+                    let sibling = find_nearest(current.active, Direction.right);
                     if (sibling !== null) {
                         sibling.insertAdjacentElement("afterend", current.active);
                     }
@@ -72,7 +72,7 @@ const key_binding = {
         k: [
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, "up");
+                    let sibling = find_nearest(current.active, Direction.up);
                     if (sibling !== null) {
                         set_active(sibling);
                     }
@@ -80,9 +80,11 @@ const key_binding = {
             },
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, "up");
+                    let sibling = find_nearest(current.active, Direction.up);
                     if (sibling !== null) {
                         sibling.insertAdjacentElement("beforebegin", current.active);
+                    } else {
+                        console.log("TODO");
                     }
                 },
                 modifiers: ['Alt']
@@ -91,7 +93,7 @@ const key_binding = {
         j: [
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, "down");
+                    let sibling = find_nearest(current.active, Direction.down);
                     if (sibling !== null) {
                         set_active(sibling);
                     }
@@ -99,7 +101,7 @@ const key_binding = {
             },
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, "down");
+                    let sibling = find_nearest(current.active, Direction.down);
                     if (sibling !== null) {
                         sibling.insertAdjacentElement("afterend", current.active);
                     }
