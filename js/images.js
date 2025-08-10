@@ -1,5 +1,5 @@
-const MIN_PAGE_NB = 1;
-const MAX_PAGE_NB = 28;
+export const MIN_PAGE_NB = 1;
+export const MAX_PAGE_NB = 28;
 
 export function setup_gallery_buttons() {
     const gallery_button_container = document.querySelector("#gallery-buttons");

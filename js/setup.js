@@ -3,7 +3,8 @@ import { consonants } from "./consonants.js";
 import { add_character_if_set, reset_character, send_key } from "./characters.js";
 import { build_letter } from "./segments.js";
 import { setup_gallery_buttons, display_page } from "./images.js";
-import { make_text_buffer, current, find_nearest, set_active, set_mode, Mode, Direction } from "./text.js";
+import { make_text_buffer, current, set_mode, Mode, Direction } from "./text.js";
+import { page_buffer_collection } from "./pages.js";
 
 /** @type {() => HTMLElement} */
 let current_text_buffer = () => current.active.querySelector(".text-buffer");
@@ -20,7 +21,7 @@ const Accent = Object.freeze({
 /** @type {?Accent} */
 let key_buffer = null;
 
-/** 
+/**
  * A key binding definition.
  * @typedef {Object} Binding
  * @property {(arg0: KeyboardEvent) => void} action - action to perform for the key binding
@@ -34,18 +35,14 @@ const key_binding = {
         h: [
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, Direction.left);
-                    if (sibling !== null) {
-                        set_active(sibling);
-                    }
+                    const page = page_buffer_collection.current;
+                    page.set_nearest_active(page.active, Direction.left);
                 }
             },
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, Direction.left);
-                    if (sibling !== null) {
-                        sibling.insertAdjacentElement("beforebegin", current.active);
-                    }
+                    const page = page_buffer_collection.current;
+                    page.move(page.active, Direction.left);
                 },
                 modifiers: ['Alt']
             },
@@ -53,18 +50,14 @@ const key_binding = {
         l: [
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, Direction.right);
-                    if (sibling !== null) {
-                        set_active(sibling);
-                    }
+                    const page = page_buffer_collection.current;
+                    page.set_nearest_active(page.active, Direction.right)
                 }
             },
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, Direction.right);
-                    if (sibling !== null) {
-                        sibling.insertAdjacentElement("afterend", current.active);
-                    }
+                    const page = page_buffer_collection.current;
+                    page.move(page.active, Direction.right);
                 },
                 modifiers: ['Alt']
             }
@@ -72,20 +65,14 @@ const key_binding = {
         k: [
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, Direction.up);
-                    if (sibling !== null) {
-                        set_active(sibling);
-                    }
+                    const page = page_buffer_collection.current;
+                    page.set_nearest_active(page.active, Direction.up);
                 }
             },
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, Direction.up);
-                    if (sibling !== null) {
-                        sibling.insertAdjacentElement("beforebegin", current.active);
-                    } else {
-                        console.log("TODO");
-                    }
+                    const page = page_buffer_collection.current;
+                    page.move(page.active, Direction.up);
                 },
                 modifiers: ['Alt']
             }
@@ -93,18 +80,14 @@ const key_binding = {
         j: [
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, Direction.down);
-                    if (sibling !== null) {
-                        set_active(sibling);
-                    }
+                    const page = page_buffer_collection.current;
+                    page.set_nearest_active(page.active, Direction.down);
                 }
             },
             {
                 action: () => {
-                    let sibling = find_nearest(current.active, Direction.down);
-                    if (sibling !== null) {
-                        sibling.insertAdjacentElement("afterend", current.active);
-                    }
+                    const page = page_buffer_collection.current;
+                    page.move(page.active, Direction.down);
                 },
                 modifiers: ['Alt']
             }
@@ -287,18 +270,21 @@ function handle_keybinding(event) {
 }
 
 (() => {
+    // text buffers
+    page_buffer_collection.display(1);
+
     // character buffer
-    document.querySelector("#text-buffer-container > .row").appendChild(make_text_buffer(true));
-
-    let container = document.querySelector("#vowels_container");
-    for (const [code, letter] of vowels) {
-        container.appendChild(build_letter(code, letter, true));
-    }
-
-    container = document.querySelector("#consonants_container");
-    for (const [code, letter] of consonants) {
-        container.appendChild(build_letter(code, letter, false));
-    }
+    // document.querySelector("#text-buffer-container > .row").appendChild(make_text_buffer(true));
+    //
+    // let container = document.querySelector("#vowels_container");
+    // for (const [code, letter] of vowels) {
+    //     container.appendChild(build_letter(code, letter, true));
+    // }
+    //
+    // container = document.querySelector("#consonants_container");
+    // for (const [code, letter] of consonants) {
+    //     container.appendChild(build_letter(code, letter, false));
+    // }
 
     // add_character();
 
