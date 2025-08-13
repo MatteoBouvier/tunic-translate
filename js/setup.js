@@ -5,6 +5,7 @@ import { build_letter } from "./segments.js";
 import { setup_gallery_buttons, display_page } from "./images.js";
 import { make_text_buffer, current, set_mode, Mode, Direction } from "./text.js";
 import { page_buffer_collection } from "./pages.js";
+import { save, load } from "./pages.js"
 
 /** @type {() => HTMLElement} */
 let current_text_buffer = () => current.active.querySelector(".text-buffer");
@@ -256,17 +257,6 @@ function handle_keybinding(event) {
     }
 
     key_binding.match(event)();
-
-    // else if (key == " ") {
-    //     key = "";
-    //     write_character(true);
-    // }
-    // else if (key == "Delete") {
-    //     key = "";
-    //     reset_character();
-    // }
-    //
-
 }
 
 (() => {
@@ -294,4 +284,10 @@ function handle_keybinding(event) {
 
     // key bindings
     document.onkeydown = handle_keybinding;
+
+    // save & load
+    // @ts-ignore
+    document.querySelector("#save-button").onmousedown = () => save();
+    // @ts-ignore
+    document.querySelector("#fileupload").onchange = load;
 })()

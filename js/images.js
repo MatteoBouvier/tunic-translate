@@ -1,5 +1,4 @@
-export const MIN_PAGE_NB = 1;
-export const MAX_PAGE_NB = 28;
+import { MIN_PAGE_NB, MAX_PAGE_NB } from "./constants.js";
 
 export function setup_gallery_buttons() {
     const gallery_button_container = document.querySelector("#gallery-buttons");
@@ -35,6 +34,8 @@ export function display_page(nb) {
 
     let new_current_button = document.querySelector("#gallery-buttons").children[nb - 1];
     new_current_button.classList.add("gallery-btn-current");
+
+    page_buffer_collection.display(nb);
 }
 
 function display_previous_page() {

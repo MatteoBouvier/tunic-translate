@@ -1,7 +1,9 @@
-import { MAX_PAGE_NB, MIN_PAGE_NB } from "./images.js";
+import { MAX_PAGE_NB, MIN_PAGE_NB } from "./constants.js";
 import { Direction, make_text_buffer } from "./text.js";
 
 /** @typedef {RootNode|RowNode|ColNode|TextNode} GraphNode */
+/** @typedef {string[] | StringArray} NestedStringArray */
+/** @typedef {NestedStringArray[]} StringArray */
 
 /**
 * @param {RootNode|RowNode|ColNode} parent - parent node to add to
@@ -51,6 +53,10 @@ class RowNode {
      */
     toString(prefix) {
         return prefix + `Row<${this.index}>\n` + this.children.map((child) => child.toString(prefix + "\t")).join("\n");
+    }
+
+    toJSON() {
+        return this.children.map((c) => c.toJSON());
     }
 
     /** @returns {number[]} */
@@ -129,6 +135,10 @@ class ColNode {
         return prefix + `Col<${this.index}>\n` + this.children.map((child) => child.toString(prefix + "\t")).join("\n");
     }
 
+    toJSON() {
+        return this.children.map((c) => c.toJSON());
+    }
+
     /** @returns {number[]} */
     get index() {
         return [...this.parent.index, this.parent.children.indexOf(this)];
@@ -199,11 +209,19 @@ class TextNode {
         this.dom = make_text_buffer(content, { active });
     }
 
+    get content() {
+        return this.dom.querySelector(".text-buffer").innerHTML;
+    }
+
     /**
      * @param {string} prefix
      */
     toString(prefix) {
-        return prefix + `Text<${this.index}> ${this.dom.querySelector('.text-buffer').innerHTML}\n`;
+        return prefix + `Text<${this.index}> ${this.content}\n`;
+    }
+
+    toJSON() {
+        return this.content;
     }
 
     /** @returns {number[]} */
@@ -213,20 +231,84 @@ class TextNode {
 }
 
 class PageGraph {
-    constructor() {
-        /** @type {RootNode} */
-        this.root = new RootNode(
-            new RowNode(
-                new TextNode("", true)
-            )
-        );
+    /** 
+     * @param {RootNode} [root]
+     * @param {number[]} [active]
+     */
+    constructor(root, active) {
+        if (typeof root === "undefined") {
+            /** @type {RootNode} */
+            this.root = new RootNode(
+                new RowNode(
+                    new TextNode("", true)
+                )
+            );
 
-        /** @type {number[]} */
-        this.active = [0, 0]
+            /** @type {number[]} */
+            this.active = [0, 0]
+        }
+        else {
+            this.root = root;
+            this.active = active ?? [0, 0];
+        }
+    }
+
+    /** 
+     * @param {NestedStringArray[]} data
+     * @param {number[]} active
+     */
+    static fromObject(data, active) {
+        /**
+         * @param {NestedStringArray} level_data
+         * @param {number[]} [active]
+         */
+        function parse_row(level_data, active = [-1]) {
+            let children = [];
+
+            for (const [i, data] of Object.entries(level_data)) {
+                if (typeof data === "string") {
+                    children.push(new TextNode(data, parseInt(i) === active[0]));
+                }
+                else {
+                    children.push(parse_col(data, parseInt(i) === active[0] ? active.slice(1) : undefined));
+                }
+            }
+
+            return new RowNode(...children);
+        }
+
+        /**
+         * @param {NestedStringArray} level_data
+         * @param {number[]} [active]
+         */
+        function parse_col(level_data, active = [-1]) {
+            let children = [];
+
+            for (const [i, data] of Object.entries(level_data)) {
+                if (typeof data === "string") {
+                    throw new Error("Got unexpected string while parsing ColNode data");
+                }
+                children.push(parse_row(data, parseInt(i) === active[0] ? active.slice(1) : undefined));
+            }
+
+            return new ColNode(...children);
+        }
+
+        /** @type {RowNode[]} */
+        let children = [];
+        for (const [i, level_data] of Object.entries(data)) {
+            children.push(parse_row(level_data, parseInt(i) === active[0] ? active.slice(1) : undefined));
+        }
+
+        return new PageGraph(new RootNode(...children), active);
     }
 
     toString() {
         return this.root.toString();
+    }
+
+    toJSON() {
+        return JSON.stringify(this.root.toJSON());
     }
 
     /**
@@ -546,12 +628,34 @@ for (let i = MIN_PAGE_NB; i <= MAX_PAGE_NB; i++) {
     page_buffer_collection.pages[i] = new PageGraph()
 }
 
-function load() {
 
+export async function load() {
+    const raw_data = await this.files[0].text();
+    const data = JSON.parse(raw_data)
+
+    for (const [page_nb, page_data] of Object.entries(data)) {
+        page_buffer_collection.pages[page_nb] = PageGraph.fromObject(JSON.parse(page_data["data"]), page_data["active"]);
+    }
+
+    page_buffer_collection.display(1);
 }
 
-function save() {
+export function save() {
+    let data = {};
 
+    for (const [page_nb, page] of Object.entries(page_buffer_collection.pages)) {
+        data[page_nb] = { data: page.toJSON(), active: page.active };
+    }
+
+    const blob = new Blob([JSON.stringify(data)], { type: 'text/plain' });
+    const dataURL = URL.createObjectURL(blob);
+
+    const downloadLink = document.createElement('a');
+    downloadLink.href = dataURL;
+    downloadLink.download = 'tunic_translator.json';
+    downloadLink.click();
+
+    URL.revokeObjectURL(dataURL);
 }
 
 
