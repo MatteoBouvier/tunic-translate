@@ -1,9 +1,29 @@
+import { add_character } from "./characters.js";
 import { MAX_PAGE_NB, MIN_PAGE_NB } from "./constants.js";
-import { Direction, make_text_buffer } from "./text.js";
 
 /** @typedef {RootNode|RowNode|ColNode|TextNode} GraphNode */
 /** @typedef {string[] | StringArray} NestedStringArray */
 /** @typedef {NestedStringArray[]} StringArray */
+
+/**
+ * @readonly
+ * @enum {string}
+ */
+export const Mode = Object.freeze({
+    normal: "normal",
+    insert: "insert"
+})
+
+/**
+ * @readonly
+ * @enum {string}
+ */
+export const Direction = Object.freeze({
+    right: "right",
+    left: "left",
+    up: "up",
+    down: "down",
+})
 
 /**
 * @param {RootNode|RowNode|ColNode} parent - parent node to add to
@@ -198,6 +218,9 @@ class RootNode extends ColNode {
 }
 
 class TextNode {
+    /** @type {Mode} */
+    #mode;
+
     /**
     * @param {string} [content=""]
     * @param {boolean} [active=false]
@@ -207,10 +230,16 @@ class TextNode {
         this.parent = null;
         /** @type {HTMLElement} */
         this.dom = make_text_buffer(content, { active });
+        this.#mode = Mode.normal;
+    }
+
+    /** @returns {HTMLElement} */
+    get text_buffer() {
+        return this.dom.querySelector(".text-buffer");
     }
 
     get content() {
-        return this.dom.querySelector(".text-buffer").innerHTML;
+        return this.text_buffer.innerHTML;
     }
 
     /**
@@ -227,6 +256,27 @@ class TextNode {
     /** @returns {number[]} */
     get index() {
         return [...this.parent.index, this.parent.children.indexOf(this)];
+    }
+
+    /** @returns {Mode} */
+    get mode() {
+        return this.#mode;
+    }
+
+    /**
+     * @param {Mode} mode
+     */
+    set mode(mode) {
+        this.#mode = mode;
+        const text_buffer = this.text_buffer;
+
+        if (mode === Mode.insert) {
+            text_buffer.parentElement.classList.add("insert");
+            add_character(text_buffer);
+        }
+        else {
+            text_buffer.parentElement.classList.remove("insert");
+        }
     }
 }
 
@@ -337,6 +387,10 @@ class PageGraph {
         }
 
         throw new Error(`Got wrong node type at index ${index}: expected ${node_type.name}, got ${node.constructor.name} (${node})`)
+    }
+
+    get_active() {
+        return this.get(this.active, TextNode);
     }
 
     /**
@@ -565,7 +619,7 @@ class PageGraph {
         const index = parent instanceof HTMLElement ? this.get_index(parent) : parent;
 
         if (direction === Direction.right) {
-            this.get(index, TextNode).parent.add(new TextNode(Math.random().toString()), index.at(-1));
+            this.get(index, TextNode).parent.add(new TextNode(), index.at(-1));
         }
         else if (direction === Direction.down) {
             const source_node = this.get(index, TextNode);
@@ -607,7 +661,7 @@ export let page_buffer_collection = {
     displayed: 1,
 
     /** @returns {PageGraph} */
-    get current() {
+    get current_page() {
         return this.pages[this.displayed];
     },
 
@@ -628,6 +682,88 @@ for (let i = MIN_PAGE_NB; i <= MAX_PAGE_NB; i++) {
     page_buffer_collection.pages[i] = new PageGraph()
 }
 
+
+/**
+ * @param {string} content
+ * @param {Object} opts
+ * @param {boolean} [opts.active=false]
+ * @returns {HTMLDivElement}
+ */
+export function make_text_buffer(content, { active = false }) {
+    let wrapper = document.createElement("div");
+    wrapper.classList.add("text-buffer-wrapper");
+
+    if (active) {
+        wrapper.classList.add("active");
+    }
+
+    // text buffer
+    let buffer = document.createElement("div");
+    buffer.classList.add("text-buffer");
+    buffer.innerText = content;
+    buffer.onclick = () => {
+        page_buffer_collection.current_page.set_active(wrapper);
+    };
+    wrapper.appendChild(buffer);
+
+    // button add right
+    let button_right = document.createElement("div");
+    button_right.classList.add("text-buffer-button", "right");
+    button_right.onmouseup = add_text_buffer;
+    button_right.innerHTML = "&#xFF0B;";
+    wrapper.appendChild(button_right);
+
+    // button add bottom
+    let button_bottom = document.createElement("div");
+    button_bottom.classList.add("text-buffer-button", "bottom");
+    button_bottom.onmouseup = add_text_buffer;
+    button_bottom.innerHTML = "&#xFF0B;";
+    wrapper.appendChild(button_bottom);
+
+    // button remove
+    let button_remove = document.createElement("div");
+    button_remove.classList.add("text-buffer-button", "top", "right");
+    button_remove.onmouseup = remove_text_buffer;
+    button_remove.innerHTML = "&#xFF0D";
+    wrapper.appendChild(button_remove);
+
+    return wrapper
+}
+
+/**
+ * @param {MouseEvent} event
+ */
+function add_text_buffer(event) {
+    const button = event.target;
+    if (!(button instanceof HTMLElement)) {
+        throw new Error("Got invalid button");
+    }
+
+    const wrapper = button.parentElement;
+
+    if (button.classList.contains("right")) {
+        page_buffer_collection.current_page.add(wrapper, Direction.right);
+
+    } else if (button.classList.contains("bottom")) {
+        page_buffer_collection.current_page.add(wrapper, Direction.down);
+
+    } else {
+        throw new Error("Got invalid direction");
+    }
+}
+
+/**
+ * @param {MouseEvent} event
+ */
+function remove_text_buffer(event) {
+    const button = event.target;
+    if (!(button instanceof HTMLElement)) {
+        throw new Error("Got invalid button");
+    }
+
+    const wrapper = button.parentElement;
+    page_buffer_collection.current_page.remove(wrapper);
+}
 
 export async function load() {
     const raw_data = await this.files[0].text();

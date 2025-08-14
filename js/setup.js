@@ -1,14 +1,9 @@
-import { vowels } from "./vowels.js";
-import { consonants } from "./consonants.js";
 import { add_character_if_set, reset_character, send_key } from "./characters.js";
-import { build_letter } from "./segments.js";
 import { setup_gallery_buttons, display_page } from "./images.js";
-import { make_text_buffer, current, set_mode, Mode, Direction } from "./text.js";
-import { page_buffer_collection } from "./pages.js";
-import { save, load } from "./pages.js"
+import { Mode, Direction, page_buffer_collection, save, load } from "./pages.js";
 
 /** @type {() => HTMLElement} */
-let current_text_buffer = () => current.active.querySelector(".text-buffer");
+let current_text_buffer = () => page_buffer_collection.current_page.get_active().dom.querySelector(".text-buffer");
 
 /**
  * @readonly
@@ -36,13 +31,13 @@ const key_binding = {
         h: [
             {
                 action: () => {
-                    const page = page_buffer_collection.current;
+                    const page = page_buffer_collection.current_page;
                     page.set_nearest_active(page.active, Direction.left);
                 }
             },
             {
                 action: () => {
-                    const page = page_buffer_collection.current;
+                    const page = page_buffer_collection.current_page;
                     page.move(page.active, Direction.left);
                 },
                 modifiers: ['Alt']
@@ -51,13 +46,13 @@ const key_binding = {
         l: [
             {
                 action: () => {
-                    const page = page_buffer_collection.current;
+                    const page = page_buffer_collection.current_page;
                     page.set_nearest_active(page.active, Direction.right)
                 }
             },
             {
                 action: () => {
-                    const page = page_buffer_collection.current;
+                    const page = page_buffer_collection.current_page;
                     page.move(page.active, Direction.right);
                 },
                 modifiers: ['Alt']
@@ -66,13 +61,13 @@ const key_binding = {
         k: [
             {
                 action: () => {
-                    const page = page_buffer_collection.current;
+                    const page = page_buffer_collection.current_page;
                     page.set_nearest_active(page.active, Direction.up);
                 }
             },
             {
                 action: () => {
-                    const page = page_buffer_collection.current;
+                    const page = page_buffer_collection.current_page;
                     page.move(page.active, Direction.up);
                 },
                 modifiers: ['Alt']
@@ -81,27 +76,27 @@ const key_binding = {
         j: [
             {
                 action: () => {
-                    const page = page_buffer_collection.current;
+                    const page = page_buffer_collection.current_page;
                     page.set_nearest_active(page.active, Direction.down);
                 }
             },
             {
                 action: () => {
-                    const page = page_buffer_collection.current;
+                    const page = page_buffer_collection.current_page;
                     page.move(page.active, Direction.down);
                 },
                 modifiers: ['Alt']
             }
         ],
         i: {
-            action: () => set_mode(Mode.insert)
+            action: () => page_buffer_collection.current_page.get_active().mode = Mode.insert
         }
     },
 
     /** @type {Object.<string, (Binding | Binding[])>} */
     [Mode.insert]: {
         Escape: {
-            action: () => set_mode(Mode.normal)
+            action: () => page_buffer_collection.current_page.get_active().mode = Mode.normal
         },
         Backspace: {
             action: () => reset_character(current_text_buffer(), 1)
@@ -190,10 +185,11 @@ const key_binding = {
             }
         }
 
-        const binding = this[current.mode][keypress.key];
+        const current_mode = page_buffer_collection.current_page.get_active().mode;
+        const binding = this[current_mode][keypress.key];
         const [action, skip_after] = (() => {
             if (typeof binding === "undefined") {
-                return [this[current.mode]._default?.action?.bind(undefined, keypress), false];
+                return [this[current_mode]._default?.action?.bind(undefined, keypress), false];
             }
             else if (Array.isArray(binding)) {
                 for (const b of binding) {
@@ -211,7 +207,7 @@ const key_binding = {
             }
         })()
 
-        return wrapper(action, this[current.mode]._after?.action, skip_after);
+        return wrapper(action, this[current_mode]._after?.action, skip_after);
     },
 
     /**
