@@ -3,7 +3,7 @@ import { setup_gallery_buttons, display_page } from "./images.js";
 import { Mode, Direction, page_buffer_collection, save, load } from "./pages.js";
 
 /** @type {() => HTMLElement} */
-let current_text_buffer = () => page_buffer_collection.current_page.get_active().dom.querySelector(".text-buffer");
+let current_text_buffer = () => page_buffer_collection.current_page.get_active().text_buffer;
 
 /**
  * @readonly
@@ -104,18 +104,23 @@ const key_binding = {
         Tab: {
             action: () => add_character_if_set(current_text_buffer())
         },
-        Dead: {
-            action: (event) => {
-                if (event.code !== "BracketLeft") { return; }
-
-                if (event.shiftKey) {
-                    key_buffer = Accent.dieresis;
-                } else {
+        Dead: [
+            {
+                action: (event) => {
+                    if (event.code !== "BracketLeft") { return; }
                     key_buffer = Accent.circumflex;
-                }
+                },
+                skip_after: true,
             },
-            skip_after: true,
-        },
+            {
+                action: (event) => {
+                    if (event.code !== "BracketLeft") { return; }
+                    key_buffer = Accent.dieresis;
+                },
+                skip_after: true,
+                modifiers: ["Shift"],
+            }
+        ],
         "æ": {
             action: () => send_key(current_text_buffer(), "á")
         },
@@ -203,7 +208,8 @@ const key_binding = {
 
             } else {
                 let verified = this.verify_modifiers(keypress, binding);
-                return [verified?.action?.bind(undefined, keypress), verified.skip_after];
+                console.log(verified);
+                return [verified?.action?.bind(undefined, keypress), verified?.skip_after];
             }
         })()
 
@@ -232,10 +238,10 @@ const key_binding = {
 
 key_binding.add(Array.from("aeiouy"), (event) => {
     if (key_buffer === Accent.circumflex) {
-        send_key(current_text_buffer(), event.key + "\u0302");
+        send_key(current_text_buffer(), String.fromCharCode(event.key.charCodeAt(0), 770));
     }
     else if (key_buffer === Accent.dieresis) {
-        send_key(current_text_buffer(), event.key + "\u0308");
+        send_key(current_text_buffer(), String.fromCharCode(event.key.charCodeAt(0), 776));
     }
     else {
         send_key(current_text_buffer(), event.key);
