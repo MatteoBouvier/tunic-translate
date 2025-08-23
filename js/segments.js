@@ -44,9 +44,9 @@ export function build_letter(code, letter, is_vowel) {
 
     container.addEventListener("mouseup", () => {
         if (is_vowel) {
-            set_vowel(letter);
+            set_vowel(page_buffer_collection.current_page.get_active().text_buffer, letter);
         } else {
-            set_consonant(letter);
+            set_consonant(page_buffer_collection.current_page.get_active().text_buffer, letter);
         }
     });
 
