@@ -72,7 +72,7 @@ function handle_zoom_in(node, event) {
     node.dataset.offsetX = offsetX.toString();
     node.dataset.offsetY = offsetY.toString();
 
-    node.style.transform = "scale(1.5)";
+    node.style.transform = "scale(2)";
     node.style.transform += `translate(${offsetX}px, ${offsetY}px)`;
 }
 globalThis.handle_zoom_in = handle_zoom_in;

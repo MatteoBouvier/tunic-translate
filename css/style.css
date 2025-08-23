@@ -5,15 +5,6 @@ html, body {
     caret-color: transparent;
 }
 
-h1 {
-    padding: 10px;
-    background-color: var(--tunic-red);
-    border-radius: 20px;
-    border: 4px solid var(--tunic-brown);
-    color: var(--tunic-white);
-    text-shadow: -2px -2px 0 var(--tunic-brown), 2px -2px 0 var(--tunic-brown), -2px 2px 0 var(--tunic-brown), 2px 2px 0 var(--tunic-brown);
-}
-
 .box {
     display: flex;
     flex-flow: column;
@@ -32,12 +23,24 @@ h1 {
     gap: 10px;
 }
 
-.item {
+.manual-letter-container {
     flex-grow: 1;
     background-color: var(--tunic-sand);
     border: 4px solid var(--tunic-brown);
     border-radius: 5px;
-    padding: 20px;
+    padding: 1rem;
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 20px;
+
+    & > div {
+        flex-grow:1;
+    }
+    
+    & h1 {
+        margin: 0 0.4rem;
+        color: var(--tunic-brown);
+    }
 }
 
 .card {

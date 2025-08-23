@@ -776,30 +776,35 @@ function remove_text_buffer(event) {
  */
 function show_manual_select_letters(index) {
     const wrapper = document.createElement("div");
-    wrapper.classList.add("item");
+    wrapper.classList.add("manual-letter-container");
+
+    const left = document.createElement("div");
+    const right = document.createElement("div");
 
     const vowels_title = document.createElement("h1");
     vowels_title.innerText = "Vowels";
-    wrapper.appendChild(vowels_title);
+    left.appendChild(vowels_title);
 
     const vowels_container = document.createElement("div");
     vowels_container.id = "vowels_container";
     for (const [code, letter] of vowels) {
         vowels_container.appendChild(build_letter(code, letter, true));
     }
-    wrapper.appendChild(vowels_container);
+    left.appendChild(vowels_container);
 
     const consonants_title = document.createElement("h1");
     consonants_title.innerText = "Consonants";
-    wrapper.appendChild(consonants_title);
+    right.appendChild(consonants_title);
 
     const consonants_container = document.createElement("div");
     consonants_container.id = "consonants_container";
     for (const [code, letter] of consonants) {
         consonants_container.appendChild(build_letter(code, letter, false));
     }
-    wrapper.appendChild(consonants_container);
+    right.appendChild(consonants_container);
 
+    wrapper.appendChild(left)
+    wrapper.appendChild(right)
     page_buffer_collection.current_page.get([index]).dom.insertAdjacentElement("afterend", wrapper);
 }
 
