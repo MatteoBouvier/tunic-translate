@@ -93,10 +93,12 @@ export function add_character_if_set(word) {
 /**
  * Add a word wrapper box to the character buffer
  * @param {HTMLElement} buffer
- * @param {boolean} [check=false] - check if a word can be added (previous word is not empty)
+ * @param {Object} opts
+ * @param {boolean} [opts.check=false] - check if a word can be added (previous word is not empty) ?
+ * @param {boolean} [opts.record_previous=true] - record previous word ?
  * @returns {HTMLDivElement} the newly added character
  */
-export function add_word(buffer, check = false) {
+export function add_word(buffer, { check = false, record_previous = true } = {}) {
     if (check) {
         const last_word = buffer.children[buffer.children.length - 1];
         const last_character = last_word.children[last_word.children.length - 1];
@@ -105,6 +107,20 @@ export function add_word(buffer, check = false) {
         // @ts-ignore
         const segments = Array.from(last_character.children);
         if (!segments.some((segment) => segment.dataset.status === "on")) { return }
+    }
+
+    if (record_previous) {
+        const last_word = buffer.children[buffer.children.length - 1];
+        let word_text = "";
+
+        for (const char of last_word.children) {
+            word_text += char.querySelector(".char-description").innerHTML;
+        }
+
+        page_buffer_collection.words.insert(word_text,
+            page_buffer_collection.displayed,
+            page_buffer_collection.current_page.active
+        );
     }
 
     const word = document.createElement("div");

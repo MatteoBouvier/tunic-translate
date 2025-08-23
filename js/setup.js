@@ -97,7 +97,16 @@ const key_binding = {
         ],
         i: {
             action: () => page_buffer_collection.current_page.get_active().mode = Mode.insert
-        }
+        },
+        "/": [
+            {
+                action: () => console.log(page_buffer_collection.words.search(""))
+            },
+            {
+                action: () => console.log(page_buffer_collection.words.search("")),
+                modifiers: ["Shift"]
+            }
+        ]
     },
 
     /** @type {Object.<string, (Binding | Binding[])>} */
@@ -112,7 +121,7 @@ const key_binding = {
             action: () => add_character_if_set(current_word())
         },
         " ": {
-            action: () => add_word(current_text_buffer(), true)
+            action: () => add_word(current_text_buffer(), { check: true })
         },
         Dead: [
             {
@@ -263,7 +272,7 @@ key_binding.add(Array.from("aeiouy"), (event) => {
  */
 function handle_keybinding(event) {
     // disable default Tab action
-    if (event.code === "Tab" || event.code === "Space") {
+    if (event.code === "Tab" || event.code === "Space" || event.key === "/") {
         event.preventDefault();
     }
 

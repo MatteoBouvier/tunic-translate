@@ -1,8 +1,9 @@
-import { add_character, add_word, cleanup_word } from "./characters.js";
+import { add_word, cleanup_word } from "./characters.js";
 import { consonants } from "./consonants.js";
 import { MAX_PAGE_NB, MIN_PAGE_NB } from "./constants.js";
 import { build_letter } from "./segments.js";
 import { vowels } from "./vowels.js";
+import { Trie } from "./trie.js";
 
 /** @typedef {RootNode|RowNode|ColNode|TextNode} GraphNode */
 /** @typedef {string[] | StringArray} NestedStringArray */
@@ -275,7 +276,7 @@ class TextNode {
 
         if (mode === Mode.insert) {
             text_buffer.parentElement.classList.add("insert");
-            add_word(text_buffer);
+            add_word(text_buffer, { record_previous: false });
             show_manual_select_letters(this.index[0]);
         }
         else {
@@ -665,6 +666,8 @@ export let page_buffer_collection = {
     pages: {},
     /** @type {number} */
     displayed: 1,
+
+    words: new Trie(),
 
     /** @returns {PageGraph} */
     get current_page() {
