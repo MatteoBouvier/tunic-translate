@@ -30,9 +30,18 @@
 
     & .text-buffer {
         height: 100%;
-        display: flex;
         padding: 12px;
+        display: flex;
+
+        & .word {
+            display: flex;
+        }
+
+        .word:nth-child(n+2) {
+            margin-left: 2rem;
+        }
     }
+
 }
 
 .text-buffer-button {

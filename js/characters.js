@@ -1,13 +1,13 @@
 import { vowels_rev } from "./vowels.js";
 import { consonants_rev } from "./consonants.js";
-import { segment_click, match_letter } from "./segments.js";
+import { segment_click } from "./segments.js";
 
-/** 
- * Add a character input box to the character buffer
- * @param {HTMLElement} buffer
+/**
+ * Add a character input box to the word
+ * @param {HTMLDivElement} word
  * @returns {HTMLDivElement} the newly added character
  */
-export function add_character(buffer) {
+export function add_character(word) {
     let character = document.createElement("div");
     character.classList.add("segment_box", "selectable");
 
@@ -60,25 +60,25 @@ export function add_character(buffer) {
     character.appendChild(description);
 
     // finally append character
-    buffer.appendChild(character);
+    word.appendChild(character);
 
-    if (buffer.children.length > 1) {
+    if (word.children.length > 1) {
         /** @type {HTMLElement} */
-        let bar = buffer.firstElementChild.querySelector(".Hbar");
+        let bar = word.firstElementChild.querySelector(".Hbar");
         bar.classList.remove("noshow");
-        bar.style.width = `${buffer.children.length * 80}px`;
+        bar.style.width = `${word.children.length * 80}px`;
 
-        buffer.classList.add("short_hbar");
+        word.classList.add("short_hbar");
     }
 
     return character;
 }
 
 /**
- * @param {HTMLElement} buffer
+ * @param {HTMLDivElement} word
  */
-export function add_character_if_set(buffer) {
-    const characters = buffer.children;
+export function add_character_if_set(word) {
+    const characters = word.children;
     const last_character = characters[characters.length - 1];
 
     /** @type {HTMLElement[]} */
@@ -86,69 +86,34 @@ export function add_character_if_set(buffer) {
     const segments = Array.from(last_character.children);
 
     if (segments.some((segment) => segment.dataset.status == "on")) {
-        add_character(buffer);
+        add_character(word);
     }
 }
 
 /**
- * Write a character (vowel + consonant) to the text buffer
- * @param {boolean} [reset=false] reset current character after writing ?
+ * Add a word wrapper box to the character buffer
+ * @param {HTMLElement} buffer
+ * @param {boolean} [check=false] - check if a word can be added (previous word is not empty)
+ * @returns {HTMLDivElement} the newly added character
  */
-export function write_character(reset = false) {
-    /** @type {HTMLDivElement[]} */
-    // @ts-ignore
-    let characters = document.querySelector("#character_buffer").children;
+export function add_word(buffer, check = false) {
+    if (check) {
+        const last_word = buffer.children[buffer.children.length - 1];
+        const last_character = last_word.children[last_word.children.length - 1];
 
-    let text_buffer = "";
-    let is_valid = true;
-
-    for (let character of characters) {
-        let [vowel, consonant, _] = match_letter(character);
-        if (vowel === "" && consonant === "") { break; }
-
-        if (vowel === undefined) {
-            is_valid = false;
-
-            character.classList.add("blink-vowel");
-            setTimeout(() => {
-                character.classList.remove("blink-vowel")
-            }, 3000)
-        }
-
-        if (consonant === undefined) {
-            is_valid = false;
-            character.classList.add("blink-consonant");
-            setTimeout(() => {
-                character.classList.remove("blink-consonant")
-            }, 3000)
-        }
-
-        if (vowel != undefined && consonant != undefined) {
-            /** @type {HTMLElement} */
-            const circle = character.querySelector(".circle");
-            if (circle.dataset.status === "on") {
-                text_buffer += vowel + consonant;
-            } else {
-                text_buffer += consonant + vowel;
-            }
-        }
+        /** @type {HTMLElement[]} */
+        // @ts-ignore
+        const segments = Array.from(last_character.children);
+        if (!segments.some((segment) => segment.dataset.status === "on")) { return }
     }
 
-    if (is_valid) {
-        let textarea_buffer = document.querySelector("#text_buffer");
-        if (textarea_buffer.textContent) {
-            text_buffer = ` ${text_buffer}`;
-        }
+    const word = document.createElement("div");
+    word.classList.add("word");
 
-        textarea_buffer.textContent += text_buffer;
-
-        if (reset) {
-            reset_character();
-        }
-    }
-
+    buffer.appendChild(word);
+    add_character(word)
+    return word
 }
-globalThis.write_character = write_character;
 
 
 /**
@@ -157,33 +122,41 @@ globalThis.write_character = write_character;
  * @param {number} [n=-1] number of characters to reset, all by default
  */
 export function reset_character(buffer, n = -1) {
+    /** @type {HTMLDivElement} */
+    // @ts-ignore
+    const word = buffer.children[buffer.children.length - 1];
+
     if (n === -1) {
-        buffer.textContent = '';
-        buffer.classList.remove("short_hbar");
-        add_character(buffer);
+        word.textContent = '';
+        word.classList.remove("short_hbar");
+        add_character(word);
         return;
     }
 
     while (n > 0) {
-        buffer.removeChild(buffer.lastChild);
+        word.removeChild(word.lastChild);
         n--;
     }
 
-    if (buffer.children.length === 0) {
-        buffer.classList.remove("short_hbar");
+    if (word.children.length === 0) {
+        if (buffer.children.length === 1) {
+            word.classList.remove("short_hbar");
 
-        add_character(buffer);
+            add_character(word);
+        } else {
+            buffer.removeChild(word);
+        }
     }
-    else if (buffer.children.length === 1) {
-        buffer.classList.remove("short_hbar");
+    else if (word.children.length === 1) {
+        word.classList.remove("short_hbar");
 
-        let bar = buffer.firstElementChild.querySelector(".Hbar");
+        let bar = word.firstElementChild.querySelector(".Hbar");
         bar.classList.add("noshow");
     }
     else {
         /** @type {HTMLElement} */
-        let bar = buffer.firstElementChild.querySelector(".Hbar");
-        bar.style.width = `${buffer.children.length * 80}px`;
+        let bar = word.firstElementChild.querySelector(".Hbar");
+        bar.style.width = `${word.children.length * 80}px`;
     }
 }
 globalThis.reset_character = reset_character;
@@ -218,11 +191,15 @@ function is_consonant_set(character) {
  * @param {string} letter
  */
 export function set_vowel(buffer, letter) {
-    const characters = buffer.children;
+    const words = buffer.children;
+    const last_word = words[words.length - 1];
+    if (!(last_word instanceof HTMLDivElement)) { throw new Error("Could not find last word of buffer") }
+
+    const characters = last_word.children;
     let last_character = characters[characters.length - 1];
 
     if (is_vowel_set(last_character)) {
-        last_character = add_character(buffer);
+        last_character = add_character(last_word);
     }
 
     const vowel_code = vowels_rev.get(letter);
@@ -251,11 +228,15 @@ export function set_vowel(buffer, letter) {
  * @param {string} letter
  */
 export function set_consonant(buffer, letter) {
-    const characters = buffer.children;
+    const words = buffer.children;
+    const last_word = words[words.length - 1];
+    if (!(last_word instanceof HTMLDivElement)) { throw new Error("Could not find last word of buffer") }
+
+    const characters = last_word.children;
     let last_character = characters[characters.length - 1];
 
     if (is_consonant_set(last_character)) {
-        last_character = add_character(buffer);
+        last_character = add_character(last_word);
     }
 
     if (is_vowel_set(last_character)) {
@@ -287,4 +268,7 @@ export function send_key(buffer, letter) {
     } else if (consonants_rev.has(letter)) {
         set_consonant(buffer, letter);
     }
+    //DEBUG :else {
+    //    console.log(letter)
+    //}
 }

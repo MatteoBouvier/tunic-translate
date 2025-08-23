@@ -1,4 +1,4 @@
-import { add_character } from "./characters.js";
+import { add_character, add_word } from "./characters.js";
 import { MAX_PAGE_NB, MIN_PAGE_NB } from "./constants.js";
 
 /** @typedef {RootNode|RowNode|ColNode|TextNode} GraphNode */
@@ -272,7 +272,7 @@ class TextNode {
 
         if (mode === Mode.insert) {
             text_buffer.parentElement.classList.add("insert");
-            add_character(text_buffer);
+            add_word(text_buffer);
         }
         else {
             text_buffer.parentElement.classList.remove("insert");

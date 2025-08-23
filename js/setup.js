@@ -1,9 +1,16 @@
-import { add_character_if_set, reset_character, send_key } from "./characters.js";
+import { add_character_if_set, add_word, reset_character, send_key } from "./characters.js";
 import { setup_gallery_buttons, display_page } from "./images.js";
 import { Mode, Direction, page_buffer_collection, save, load } from "./pages.js";
 
 /** @type {() => HTMLElement} */
 let current_text_buffer = () => page_buffer_collection.current_page.get_active().text_buffer;
+let current_word = () => {
+    const words = current_text_buffer().children;
+    const last_word = words[words.length - 1];
+    if (!(last_word instanceof HTMLDivElement)) { throw new Error("Could not find word in buffer") }
+
+    return last_word;
+}
 
 /**
  * @readonly
@@ -102,7 +109,10 @@ const key_binding = {
             action: () => reset_character(current_text_buffer(), 1)
         },
         Tab: {
-            action: () => add_character_if_set(current_text_buffer())
+            action: () => add_character_if_set(current_word())
+        },
+        " ": {
+            action: () => add_word(current_text_buffer(), true)
         },
         Dead: [
             {
