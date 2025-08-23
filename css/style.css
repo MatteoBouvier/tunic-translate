@@ -23,7 +23,6 @@ h1 {
 }
 
 .box .row {
-    flex-grow: 1;
     margin: 10px;
 }
 

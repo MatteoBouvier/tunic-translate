@@ -115,13 +115,30 @@ export function add_word(buffer, check = false) {
     return word
 }
 
+/**
+ * Remove the last character/word of a buffer if the character/word is not set
+ * @param {HTMLElement} buffer
+ */
+export function cleanup_word(buffer) {
+    const last_word = buffer.children[buffer.children.length - 1];
+    const last_character = last_word.children[last_word.children.length - 1];
+
+    /** @type {HTMLElement[]} */
+    // @ts-ignore
+    const segments = Array.from(last_character.querySelectorAll(".segment"));
+    if (segments.every((segment) => segment.dataset.status === "off")) {
+        reset_character(buffer, 1, false);
+    }
+}
+
 
 /**
  * Reset character buffer
  * @param {HTMLElement} buffer
- * @param {number} [n=-1] number of characters to reset, all by default
+ * @param {number} [n=-1] - number of characters to reset, all by default
+ * @param {boolean} [keep_one_word=true] - keep at least one empty word in the buffer
  */
-export function reset_character(buffer, n = -1) {
+export function reset_character(buffer, n = -1, keep_one_word = true) {
     /** @type {HTMLDivElement} */
     // @ts-ignore
     const word = buffer.children[buffer.children.length - 1];
@@ -139,7 +156,7 @@ export function reset_character(buffer, n = -1) {
     }
 
     if (word.children.length === 0) {
-        if (buffer.children.length === 1) {
+        if (keep_one_word && buffer.children.length === 1) {
             word.classList.remove("short_hbar");
 
             add_character(word);

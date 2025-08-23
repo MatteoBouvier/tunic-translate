@@ -218,7 +218,6 @@ const key_binding = {
 
             } else {
                 let verified = this.verify_modifiers(keypress, binding);
-                console.log(verified);
                 return [verified?.action?.bind(undefined, keypress), verified?.skip_after];
             }
         })()
@@ -264,7 +263,7 @@ key_binding.add(Array.from("aeiouy"), (event) => {
  */
 function handle_keybinding(event) {
     // disable default Tab action
-    if (event.code === "Tab") {
+    if (event.code === "Tab" || event.code === "Space") {
         event.preventDefault();
     }
 
@@ -274,21 +273,6 @@ function handle_keybinding(event) {
 (() => {
     // text buffers
     page_buffer_collection.display(1);
-
-    // character buffer
-    // document.querySelector("#text-buffer-container > .row").appendChild(make_text_buffer(true));
-    //
-    // let container = document.querySelector("#vowels_container");
-    // for (const [code, letter] of vowels) {
-    //     container.appendChild(build_letter(code, letter, true));
-    // }
-    //
-    // container = document.querySelector("#consonants_container");
-    // for (const [code, letter] of consonants) {
-    //     container.appendChild(build_letter(code, letter, false));
-    // }
-
-    // add_character();
 
     // image display
     setup_gallery_buttons();

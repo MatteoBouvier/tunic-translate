@@ -1,5 +1,8 @@
-import { add_character, add_word } from "./characters.js";
+import { add_character, add_word, cleanup_word } from "./characters.js";
+import { consonants } from "./consonants.js";
 import { MAX_PAGE_NB, MIN_PAGE_NB } from "./constants.js";
+import { build_letter } from "./segments.js";
+import { vowels } from "./vowels.js";
 
 /** @typedef {RootNode|RowNode|ColNode|TextNode} GraphNode */
 /** @typedef {string[] | StringArray} NestedStringArray */
@@ -273,9 +276,12 @@ class TextNode {
         if (mode === Mode.insert) {
             text_buffer.parentElement.classList.add("insert");
             add_word(text_buffer);
+            show_manual_select_letters(this.index[0]);
         }
         else {
             text_buffer.parentElement.classList.remove("insert");
+            hide_manual_select_letters(this.index[0]);
+            cleanup_word(this.text_buffer);
         }
     }
 }
@@ -763,6 +769,46 @@ function remove_text_buffer(event) {
 
     const wrapper = button.parentElement;
     page_buffer_collection.current_page.remove(wrapper);
+}
+
+/**
+ * @param {number} index - row index to insert after
+ */
+function show_manual_select_letters(index) {
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("item");
+
+    const vowels_title = document.createElement("h1");
+    vowels_title.innerText = "Vowels";
+    wrapper.appendChild(vowels_title);
+
+    const vowels_container = document.createElement("div");
+    vowels_container.id = "vowels_container";
+    for (const [code, letter] of vowels) {
+        vowels_container.appendChild(build_letter(code, letter, true));
+    }
+    wrapper.appendChild(vowels_container);
+
+    const consonants_title = document.createElement("h1");
+    consonants_title.innerText = "Consonants";
+    wrapper.appendChild(consonants_title);
+
+    const consonants_container = document.createElement("div");
+    consonants_container.id = "consonants_container";
+    for (const [code, letter] of consonants) {
+        consonants_container.appendChild(build_letter(code, letter, false));
+    }
+    wrapper.appendChild(consonants_container);
+
+    page_buffer_collection.current_page.get([index]).dom.insertAdjacentElement("afterend", wrapper);
+}
+
+/**
+ * @param {number} index - row index after which to hide
+ */
+function hide_manual_select_letters(index) {
+    const wrapper = page_buffer_collection.current_page.get([]).dom.children[index + 1];
+    page_buffer_collection.current_page.get([]).dom.removeChild(wrapper);
 }
 
 export async function load() {
