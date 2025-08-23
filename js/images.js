@@ -1,4 +1,5 @@
 import { MIN_PAGE_NB, MAX_PAGE_NB } from "./constants.js";
+import { Mode } from "./pages.js";
 
 export function setup_gallery_buttons() {
     const gallery_button_container = document.querySelector("#gallery-buttons");
@@ -35,6 +36,7 @@ export function display_page(nb) {
     let new_current_button = document.querySelector("#gallery-buttons").children[nb - 1];
     new_current_button.classList.add("gallery-btn-current");
 
+    page_buffer_collection.current_page.get_active().mode = Mode.normal;
     page_buffer_collection.display(nb);
 }
 

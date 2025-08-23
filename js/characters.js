@@ -121,6 +121,7 @@ export function add_word(buffer, check = false) {
  */
 export function cleanup_word(buffer) {
     const last_word = buffer.children[buffer.children.length - 1];
+    if (typeof last_word === "undefined") { return }
     const last_character = last_word.children[last_word.children.length - 1];
 
     /** @type {HTMLElement[]} */

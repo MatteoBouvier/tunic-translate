@@ -808,6 +808,8 @@ function show_manual_select_letters(index) {
  */
 function hide_manual_select_letters(index) {
     const wrapper = page_buffer_collection.current_page.get([]).dom.children[index + 1];
+
+    if (typeof wrapper === "undefined") { return }
     page_buffer_collection.current_page.get([]).dom.removeChild(wrapper);
 }
 
