@@ -6,6 +6,8 @@ class TrieNode {
         this.is_end_of_word = false;
         /** @type {[number, number[]][]}*/
         this.locations = [];
+        /** @type {string} */
+        this.meaning = "";
     }
 }
 
@@ -35,7 +37,38 @@ export class Trie {
     }
 
     /**
+     * @param {string} word
+     * @returns {TrieNode}
+     */
+    get(word) {
+        let node = this.root;
+
+        for (const char of word) {
+            if (!node.children[char]) {
+                throw new Error(`Word '${word}' not in Trie`)
+            }
+
+            node = node.children[char];
+        }
+
+        if (!node.is_end_of_word) {
+            throw new Error(`Word '${word}' not in Trie`)
+        }
+
+        return node;
+    }
+
+    /**
+     * @param {string} word - a word to insert
+     * @param {string} meaning - the meaning (translation) of the word
+     */
+    set_meaning(word, meaning) {
+        this.get(word).meaning = meaning;
+    }
+
+    /**
      * @param {string} str
+     * @returns {[string, TrieNode][]}
      */
     search(str) {
         let node = this.root;
@@ -47,6 +80,7 @@ export class Trie {
             node = node.children[char];
         }
 
+        /** @type {[string, TrieNode][]} */
         let words = [];
         /** @type {[string, TrieNode][]}*/
         let nodes_to_visit = [[str, node]];
@@ -55,7 +89,7 @@ export class Trie {
             const [word, node] = nodes_to_visit.pop();
 
             if (node.is_end_of_word) {
-                words.push(word);
+                words.push([word, node]);
             }
 
             for (const [char, child] of Object.entries(node.children)) {
@@ -66,3 +100,43 @@ export class Trie {
         return words;
     }
 }
+
+
+/**
+ * @param {[string, TrieNode][]} matches 
+ */
+function populate_search_list(matches) {
+    const body = document.querySelector(".drawer-body");
+    body.innerHTML = "";
+
+    for (const [match, node] of matches) {
+        let res = document.createElement("div");
+        res.classList.add("match-result");
+
+        let text = document.createElement("div");
+        text.classList.add("match-result-text");
+        text.innerText = match;
+        res.appendChild(text);
+
+        let meaning = document.createElement("div");
+        meaning.classList.add("match-result-meaning");
+        if (node.meaning) {
+            meaning.innerText = `(${node.meaning})`
+        }
+        res.appendChild(meaning);
+
+        let locations = document.createElement("div");
+        locations.classList.add("box", "gap5");
+        for (const [page_nb, buffer_index] of node.locations) {
+            let location = document.createElement("a");
+            location.innerText = `> page ${page_nb} @ ${buffer_index}`;
+            location.onclick = () => page_buffer_collection.display(page_nb);
+
+            locations.appendChild(location);
+        }
+        res.appendChild(locations);
+
+        body.appendChild(res);
+    }
+}
+globalThis.populate_search_list = populate_search_list;

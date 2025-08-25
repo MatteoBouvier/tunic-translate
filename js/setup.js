@@ -100,10 +100,12 @@ const key_binding = {
         },
         "/": [
             {
-                action: () => console.log(page_buffer_collection.words.search(""))
+                // @ts-ignore
+                action: () => page_buffer_collection.current_page.get_active().mode = Mode.search
             },
             {
-                action: () => console.log(page_buffer_collection.words.search("")),
+                // @ts-ignore
+                action: () => page_buffer_collection.current_page.get_active().mode = Mode.search,
                 modifiers: ["Shift"]
             }
         ]
@@ -149,6 +151,13 @@ const key_binding = {
         _after: {
             action: () => key_buffer = null,
         }
+    },
+
+    /** @type {Object.<string, (Binding | Binding[])>} */
+    [Mode.search]: {
+        Escape: {
+            action: () => page_buffer_collection.current_page.get_active().mode = Mode.normal
+        },
     },
 
     /**

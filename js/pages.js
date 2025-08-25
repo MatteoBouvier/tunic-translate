@@ -15,8 +15,10 @@ import { Trie } from "./trie.js";
  */
 export const Mode = Object.freeze({
     normal: "normal",
-    insert: "insert"
+    insert: "insert",
+    search: "search"
 })
+globalThis.Mode = Mode;
 
 /**
  * @readonly
@@ -274,15 +276,28 @@ class TextNode {
         this.#mode = mode;
         const text_buffer = this.text_buffer;
 
-        if (mode === Mode.insert) {
-            text_buffer.parentElement.classList.add("insert");
-            add_word(text_buffer, { record_previous: false });
-            show_manual_select_letters(this.index[0]);
-        }
-        else {
-            text_buffer.parentElement.classList.remove("insert");
-            hide_manual_select_letters(this.index[0]);
-            cleanup_word(this.text_buffer);
+        switch (mode) {
+            case Mode.normal:
+                text_buffer.parentElement.classList.remove("insert");
+                hide_manual_select_letters(this.index[0]);
+                cleanup_word(this.text_buffer);
+
+                // @ts-ignore
+                document.querySelector(".drawer").style.display = "none";
+                break;
+
+            case Mode.insert:
+                text_buffer.parentElement.classList.add("insert");
+                add_word(text_buffer, { record_previous: false });
+                show_manual_select_letters(this.index[0]);
+                break;
+
+            case Mode.search:
+                // @ts-ignore
+                document.querySelector(".drawer").style.display = "initial";
+                // @ts-ignore
+                document.querySelector("#search-input").focus();
+                break;
         }
     }
 }

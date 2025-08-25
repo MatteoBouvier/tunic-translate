@@ -13,6 +13,10 @@ html, body {
     gap: 10px;
 }
 
+.box.gap5 {
+    gap: 5px;
+}
+
 .box .row {
     margin: 10px;
 }
@@ -148,5 +152,68 @@ button:hover {
 
     &:hover: {
         right: calc(8rem - 2px);
+    }
+}
+
+.drawer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    display: none;
+
+    & .drawer-shadow {
+        position: absolute;
+        left: 0;
+        height: 100vh;
+        width: 70vw;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 2;
+    }
+
+    & .drawer-content {
+        position: absolute;
+        right: 0;
+        height: 100vh;
+        width: 30vw;
+        background-color: white;
+        z-index: 2;
+        padding: 0.5rem 1rem;
+
+        & input {
+            width: 100%;
+        }
+    }
+
+    & .drawer-header {
+        width: 100%;
+        height: 2rem;
+    }
+
+    & button {
+        float: right;
+        width: fit-content;
+        background-color: transparent;
+        border: none;
+        color: black;
+    }
+}
+
+.match-result {
+    background-color: lightgray;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+
+    & .match-result-text {
+        margin-bottom: 0.3rem;
+    }
+    
+    & a {
+        cursor: pointer;
+    }
+
+    & a:hover {
+        color: var(--tunic-red);
     }
 }
