@@ -34,11 +34,21 @@
         display: flex;
 
         & .word {
+            flex-grow: unset;
+        }
+
+        & .word .characters {
             display: flex;
         }
 
         .word:nth-child(n+2) {
             margin-left: 2rem;
+        }
+
+        & .word .meaning {
+            margin: auto;
+            background-color: var(--tunic-dark-green);
+            padding: .3rem 1rem;
         }
     }
 
@@ -59,7 +69,7 @@
     padding: 0 1px 2px 1px;
     cursor: pointer;
     transition: 200ms ease-in-out;
-    
+
     &.right {
         top: calc(50% - 11px);
         right: -15px;

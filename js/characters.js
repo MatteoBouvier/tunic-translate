@@ -60,15 +60,16 @@ export function add_character(word) {
     character.appendChild(description);
 
     // finally append character
-    word.appendChild(character);
+    let characters = word.querySelector(".characters");
+    characters.appendChild(character);
 
-    if (word.children.length > 1) {
+    if (characters.children.length > 1) {
         /** @type {HTMLElement} */
-        let bar = word.firstElementChild.querySelector(".Hbar");
+        let bar = characters.firstElementChild.querySelector(".Hbar");
         bar.classList.remove("noshow");
-        bar.style.width = `${word.children.length * 80}px`;
+        bar.style.width = `${characters.children.length * 80}px`;
 
-        word.classList.add("short_hbar");
+        characters.classList.add("short_hbar");
     }
 
     return character;
@@ -78,8 +79,7 @@ export function add_character(word) {
  * @param {HTMLDivElement} word
  */
 export function add_character_if_set(word) {
-    const characters = word.children;
-    const last_character = characters[characters.length - 1];
+    const last_character = word.firstElementChild.lastChild;
 
     /** @type {HTMLElement[]} */
     // @ts-ignore
@@ -100,8 +100,8 @@ export function add_character_if_set(word) {
  */
 export function add_word(buffer, { check = false, record_previous = true } = {}) {
     if (check) {
-        const last_word = buffer.children[buffer.children.length - 1];
-        const last_character = last_word.children[last_word.children.length - 1];
+        const last_word = buffer.lastChild;
+        const last_character = last_word.querySelector(".characters").lastChild;
 
         /** @type {HTMLElement[]} */
         // @ts-ignore
@@ -109,11 +109,12 @@ export function add_word(buffer, { check = false, record_previous = true } = {})
         if (!segments.some((segment) => segment.dataset.status === "on")) { return }
     }
 
+    //TODO: move record to send_key, here only set .is_end_of_word
     if (record_previous) {
-        const last_word = buffer.children[buffer.children.length - 1];
+        const last_word = buffer.lastChild;
         let word_text = "";
 
-        for (const char of last_word.children) {
+        for (const char of last_word.querySelector(".characters").children) {
             word_text += char.querySelector(".char-description").innerHTML;
         }
 
@@ -124,7 +125,15 @@ export function add_word(buffer, { check = false, record_previous = true } = {})
     }
 
     const word = document.createElement("div");
-    word.classList.add("word");
+    word.classList.add("word", "box");
+
+    const characters = document.createElement("div");
+    characters.classList.add("characters");
+    word.appendChild(characters);
+
+    const meaning = document.createElement("div");
+    meaning.classList.add("meaning");
+    word.appendChild(meaning);
 
     buffer.appendChild(word);
     add_character(word)
@@ -136,9 +145,9 @@ export function add_word(buffer, { check = false, record_previous = true } = {})
  * @param {HTMLElement} buffer
  */
 export function cleanup_word(buffer) {
-    const last_word = buffer.children[buffer.children.length - 1];
-    if (typeof last_word === "undefined") { return }
-    const last_character = last_word.children[last_word.children.length - 1];
+    const last_word = buffer.lastChild;
+    if (last_word === null) { return }
+    const last_character = last_word.firstElementChild.lastChild;
 
     /** @type {HTMLElement[]} */
     // @ts-ignore
@@ -158,21 +167,22 @@ export function cleanup_word(buffer) {
 export function reset_character(buffer, n = -1, keep_one_word = true) {
     /** @type {HTMLDivElement} */
     // @ts-ignore
-    const word = buffer.children[buffer.children.length - 1];
+    const word = buffer.lastChild;
+    let characters = word.firstElementChild;
 
     if (n === -1) {
-        word.textContent = '';
+        characters.textContent = '';
         word.classList.remove("short_hbar");
         add_character(word);
         return;
     }
 
     while (n > 0) {
-        word.removeChild(word.lastChild);
+        characters.removeChild(characters.lastChild);
         n--;
     }
 
-    if (word.children.length === 0) {
+    if (characters.children.length === 0) {
         if (keep_one_word && buffer.children.length === 1) {
             word.classList.remove("short_hbar");
 
@@ -181,16 +191,17 @@ export function reset_character(buffer, n = -1, keep_one_word = true) {
             buffer.removeChild(word);
         }
     }
-    else if (word.children.length === 1) {
+    else if (characters.children.length === 1) {
         word.classList.remove("short_hbar");
 
-        let bar = word.firstElementChild.querySelector(".Hbar");
+        let bar = characters.firstElementChild.querySelector(".Hbar");
         bar.classList.add("noshow");
     }
     else {
         /** @type {HTMLElement} */
-        let bar = word.firstElementChild.querySelector(".Hbar");
-        bar.style.width = `${word.children.length * 80}px`;
+        let bar = characters.firstElementChild.querySelector(".Hbar");
+        console.log(word)
+        bar.style.width = `${characters.children.length * 80}px`;
     }
 }
 globalThis.reset_character = reset_character;
@@ -229,7 +240,7 @@ export function set_vowel(buffer, letter) {
     const last_word = words[words.length - 1];
     if (!(last_word instanceof HTMLDivElement)) { throw new Error("Could not find last word of buffer") }
 
-    const characters = last_word.children;
+    const characters = last_word.firstElementChild.children;
     let last_character = characters[characters.length - 1];
 
     if (is_vowel_set(last_character)) {
@@ -266,7 +277,7 @@ export function set_consonant(buffer, letter) {
     const last_word = words[words.length - 1];
     if (!(last_word instanceof HTMLDivElement)) { throw new Error("Could not find last word of buffer") }
 
-    const characters = last_word.children;
+    const characters = last_word.firstElementChild.children;
     let last_character = characters[characters.length - 1];
 
     if (is_consonant_set(last_character)) {
@@ -295,14 +306,26 @@ export function set_consonant(buffer, letter) {
 /**
  * @param {HTMLElement} buffer
  * @param {string} letter
+ * @param {Object} opts
+ * @param {boolean} [opts.meaning=false]
  */
-export function send_key(buffer, letter) {
-    if (vowels_rev.has(letter)) {
-        set_vowel(buffer, letter);
-    } else if (consonants_rev.has(letter)) {
-        set_consonant(buffer, letter);
+export function send_key(buffer, letter, { meaning = false } = {}) {
+    if (meaning) {
+        letter = letter.toLowerCase();
+        if (!vowels_rev.has(letter) && !consonants_rev.has(letter)) { return }
+
+        const last_word = buffer.lastChild;
+        let meaning = last_word.lastChild;
+        meaning.innerText += letter;
     }
-    //DEBUG :else {
-    //    console.log(letter)
-    //}
+    else {
+        if (vowels_rev.has(letter)) {
+            set_vowel(buffer, letter);
+        } else if (consonants_rev.has(letter)) {
+            set_consonant(buffer, letter);
+        }
+        //DEBUG :else {
+        //    console.log(letter)
+        //}
+    }
 }

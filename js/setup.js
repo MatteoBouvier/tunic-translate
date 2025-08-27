@@ -145,9 +145,15 @@ const key_binding = {
         "æ": {
             action: () => send_key(current_text_buffer(), "á")
         },
-        _default: {
-            action: (event) => send_key(current_text_buffer(), event.key),
-        },
+        _default: [
+            {
+                action: (event) => send_key(current_text_buffer(), event.key),
+            },
+            {
+                action: (event) => send_key(current_text_buffer(), event.key, { meaning: true }),
+                modifiers: ["Shift"]
+            },
+        ],
         _after: {
             action: () => key_buffer = null,
         }
@@ -222,19 +228,19 @@ const key_binding = {
         const binding = this[current_mode][keypress.key];
         const [action, skip_after] = (() => {
             if (typeof binding === "undefined") {
-                return [this[current_mode]._default?.action?.bind(undefined, keypress), false];
+                if (Array.isArray(this[current_mode]._default)) {
+                    let verified = this.verify_modifiers_array(keypress, this[current_mode]._default);
+                    return [verified?.action?.bind(undefined, keypress), verified?.skip_after];
+                }
+                else {
+                    return [this[current_mode]._default?.action?.bind(undefined, keypress), false];
+                }
             }
             else if (Array.isArray(binding)) {
-                for (const b of binding) {
-                    let verified = this.verify_modifiers(keypress, b);
-                    if (verified !== null) {
-                        return [verified.action.bind(undefined, keypress), verified.skip_after];
-                    }
-                }
-
-                return [undefined, false];
-
-            } else {
+                let verified = this.verify_modifiers_array(keypress, binding)
+                return [verified?.action?.bind(undefined, keypress), verified?.skip_after];
+            }
+            else {
                 let verified = this.verify_modifiers(keypress, binding);
                 return [verified?.action?.bind(undefined, keypress), verified?.skip_after];
             }
@@ -257,6 +263,23 @@ const key_binding = {
             && keypress.ctrlKey === modifiers.includes("Ctrl")
             && keypress.metaKey === modifiers.includes("Meta")) {
             return binding;
+        }
+
+        return null;
+    },
+
+    /**
+     * Verify modifiers were correctly set for an array of key binding
+     * @param {KeyboardEvent} keypress
+     * @param {Binding[]} bindings
+     * @returns {?Binding}
+     */
+    verify_modifiers_array(keypress, bindings) {
+        for (const b of bindings) {
+            let verified = this.verify_modifiers(keypress, b);
+            if (verified !== null) {
+                return verified;
+            }
         }
 
         return null;
